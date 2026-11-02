@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Exam Generator - Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+
+    :root {
+        --bg:        #0f1117;
+        --bg2:       #161b27;
+        --bg3:       #1e2535;
+        --card:      #1a2236;
+        --card2:     #212d42;
+        --border:    #2a3550;
+        --border2:   #344060;
+        --primary:   #14b8a6;
+        --primary2:  #0d9488;
+        --primary3:  #99f6e4;
+        --accent:    #f59e0b;
+        --accent2:   #fbbf24;
+        --accent3:   #fef3c7;
+        --purple:    #8b5cf6;
+        --purple2:   #a78bfa;
+        --red:       #ef4444;
+        --red2:      #fca5a5;
+        --green:     #10b981;
+        --green2:    #6ee7b7;
+        --text:      #e2e8f0;
+        --text2:     #94a3b8;
+        --text3:     #64748b;
+        --radius:    14px;
+        --radius2:   10px;
+        --shadow:    0 4px 24px rgba(0,0,0,0.4);
+        --shadow2:   0 2px 8px rgba(0,0,0,0.3);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    @keyframes fadeInUp {
+        from { opacity:0; transform:translateY(20px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes spin {
+        0%   { transform:rotate(0deg); }
+        100% { transform:rotate(360deg); }
+    }
+    @keyframes pulse {
+        0%,100% { opacity:1; }
+        50%      { opacity:.6; }
+    }
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg2); }
+    ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+    body { font-family:'Inter',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
+    .header { background:var(--bg2); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); box-shadow:0 2px 12px rgba(0,0,0,.4); }
+    .header-left { display:flex; align-items:center; gap:.75rem; }
+    .header-icon { width:40px; height:40px; background:linear-gradient(135deg,var(--primary),var(--purple)); border-radius:10px; display:flex; align-items:center; justify-content:center; }
+    .header-icon i { font-size:1.2rem; color:#0f1117; }
+    .header h1 { font-size:1.4rem; font-weight:700; color:var(--primary3); }
+    .back-btn { background:rgba(20,184,166,.12); color:var(--primary3); border:1px solid rgba(20,184,166,.3); padding:.55rem 1.1rem; border-radius:var(--radius2); font-weight:600; font-size:.9rem; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:.4rem; }
+    .back-btn:hover { background:rgba(20,184,166,.22); transform:translateY(-1px); color:var(--primary3); text-decoration:none; }
+    .container { max-width:1200px; margin:0 auto; padding:2rem; }
+    .main-card { background:var(--card); border-radius:var(--radius); padding:2.5rem; border:1px solid var(--border); border-top:3px solid var(--primary); box-shadow:var(--shadow); animation:fadeInUp .5s ease both; }
+    .page-title { text-align:center; margin-bottom:2.5rem; }
+    .page-title h2 { font-size:2rem; font-weight:700; color:var(--text); margin-bottom:.5rem; }
+    .page-title p  { color:var(--text2); font-size:1rem; }
+    .form-group { margin-bottom:1.4rem; }
+    .form-label { display:block; margin-bottom:.6rem; font-weight:600; color:var(--text2); font-size:.9rem; }
+    .form-label i { color:var(--primary); margin-right:.4rem; }
+    .form-control, .form-select, select {
+        width:100%; padding:.85rem 1rem; border:1.5px solid var(--border2);
+        border-radius:var(--radius2); font-size:.95rem; font-family:inherit;
+        background:var(--bg3); color:var(--text); transition:all .2s;
+    }
+    .form-control:focus, .form-select:focus, select:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(20,184,166,.18); }
+    select option { background:var(--bg3); color:var(--text); }
+    input::placeholder, textarea::placeholder { color:var(--text3); }
+    .btn-primary, .btn-generate, .submit-btn, .btn-solve {
+        background:linear-gradient(135deg,var(--primary),var(--primary2));
+        color:#0f1117; border:none; border-radius:var(--radius2);
+        font-weight:700; cursor:pointer; transition:all .2s;
+        display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+    }
+    .btn-primary:hover, .btn-generate:hover, .submit-btn:hover, .btn-solve:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(20,184,166,.4); }
+    .btn-primary:disabled, .btn-generate:disabled, .submit-btn:disabled, .btn-solve:disabled { background:var(--bg3); color:var(--text3); cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-secondary { background:rgba(16,185,129,.15); color:var(--green2); border:1px solid rgba(16,185,129,.3); border-radius:var(--radius2); font-weight:600; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; gap:.5rem; }
+    .btn-secondary:hover { background:rgba(16,185,129,.25); transform:translateY(-1px); }
+    .loading-state, .loading { text-align:center; padding:3rem; }
+    .loading-spinner, .spinner { width:52px; height:52px; border:4px solid var(--border2); border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 1.25rem; }
+    .loading-text { font-size:1.1rem; font-weight:600; color:var(--text); margin-bottom:.4rem; }
+    .loading-subtext { color:var(--text2); font-size:.9rem; }
+    .error-box { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3); border-radius:var(--radius2); padding:1.25rem; text-align:center; color:var(--red2); margin-top:1rem; }
+    .chapters-container { max-height:220px; overflow-y:auto; border:1.5px solid var(--border2); border-radius:var(--radius2); padding:1rem; background:var(--bg3); }
+    .chapter-item { margin-bottom:.5rem; padding:.5rem; background:var(--card2); border-radius:8px; transition:all .2s; }
+    .chapter-item:hover { background:rgba(20,184,166,.1); }
+    .chapter-item label { display:flex; align-items:center; gap:.75rem; cursor:pointer; font-weight:500; color:var(--text2); font-size:.9rem; }
+    .chapter-item input[type="checkbox"] { width:16px; height:16px; accent-color:var(--primary); }
+    .pill-group { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.4rem; }
+    .pill { padding:.45rem 1rem; border-radius:20px; border:1.5px solid var(--border2); background:var(--bg3); cursor:pointer; font-size:.88rem; font-weight:500; color:var(--text2); transition:all .2s; }
+    .pill:hover { border-color:var(--primary); color:var(--primary3); }
+    .pill.active { background:linear-gradient(135deg,var(--primary),var(--primary2)); border-color:transparent; color:#0f1117; font-weight:700; }
+    .question-card { background:var(--card2); border:1px solid var(--border); border-left:4px solid var(--primary); border-radius:var(--radius2); padding:1.5rem; margin-bottom:1.25rem; transition:all .25s; }
+    .question-card:hover { box-shadow:0 6px 24px rgba(20,184,166,.15); transform:translateY(-2px); }
+    .badge { padding:.25rem .7rem; border-radius:20px; font-size:.75rem; font-weight:600; }
+    .badge-bloom { background:rgba(139,92,246,.2); color:var(--purple2); }
+    .badge-diff-easy   { background:rgba(16,185,129,.15); color:var(--green2); }
+    .badge-diff-medium { background:rgba(245,158,11,.15); color:var(--accent2); }
+    .badge-diff-hard   { background:rgba(239,68,68,.15);  color:var(--red2); }
+    .badge-easy   { background:rgba(16,185,129,.15); color:var(--green2); }
+    .badge-medium { background:rgba(245,158,11,.15); color:var(--accent2); }
+    .badge-hard   { background:rgba(239,68,68,.15);  color:var(--red2); }
+    .badge-mcq   { background:rgba(20,184,166,.15);  color:var(--primary3); }
+    .badge-short { background:rgba(16,185,129,.15);  color:var(--green2); }
+    .badge-long  { background:rgba(245,158,11,.15);  color:var(--accent2); }
+    .answer-row { display:flex; align-items:flex-start; gap:.5rem; background:rgba(16,185,129,.1); border-radius:8px; padding:.7rem 1rem; margin-bottom:.6rem; }
+    .answer-row i { color:var(--green); margin-top:2px; }
+    .answer-row span { font-size:.9rem; color:var(--green2); font-weight:600; }
+    .explanation-row { background:rgba(20,184,166,.08); border-radius:8px; padding:.7rem 1rem; font-size:.88rem; color:var(--primary3); line-height:1.6; }
+    .explanation-row i { color:var(--primary); margin-right:.4rem; }
+    .stats-bar { display:flex; gap:1rem; flex-wrap:wrap; background:var(--bg3); border-radius:var(--radius2); padding:.85rem 1.25rem; margin-bottom:1.5rem; border:1px solid var(--border); }
+    .stat-item { display:flex; align-items:center; gap:.5rem; font-size:.88rem; color:var(--text2); }
+    .stat-item i { color:var(--primary); }
+    .stat-item strong { color:var(--text); }
+    .results-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+    .results-title { font-size:1.4rem; font-weight:700; color:var(--text); }
+    .btn-reset { background:rgba(139,92,246,.15); color:var(--purple2); border:1px solid rgba(139,92,246,.3); border-radius:var(--radius2); font-weight:600; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; gap:.5rem; }
+    .btn-reset:hover { background:rgba(139,92,246,.25); transform:translateY(-1px); }
+    .form-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; margin-bottom:1.5rem; }
+    @media(max-width:768px) { .container{padding:1rem;} .main-card{padding:1.5rem;} .form-row{grid-template-columns:1fr;} .results-header{flex-direction:column;gap:1rem;align-items:stretch;} }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h1>Mock Exam Generator</h1>
+        </div>
+        <a href="{{ url_for('student_dashboard') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="container">
+        <div class="main-card">
+            <div class="page-title">
+                <h2><i class="fas fa-graduation-cap"></i> Generate Mock Exam</h2>
+                <p>Create AI-powered practice exams tailored to your course syllabus</p>
+            </div>
+            
+            <div id="generationForm">
+                <form id="mockExamForm">
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="courseSelect" class="form-label">
+                                    <i class="fas fa-book"></i> Select Course *
+                                </label>
+                                <select class="form-select" id="courseSelect" required>
+                                    <option value="">Choose a course...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="examTypeSelect" class="form-label">
+                                    <i class="fas fa-clipboard-list"></i> Exam Type
+                                </label>
+                                <select class="form-select" id="examTypeSelect">
+                                    <option value="">Choose exam type...</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="textbookSelect" class="form-label">
+                                <i class="fas fa-book-open"></i> Select Textbook *
+                            </label>
+                            <select class="form-select" id="textbookSelect" required>
+                                <option value="">Choose a textbook...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-list"></i> Select Chapters
+                            </label>
+                            <div id="chaptersList" class="chapters-container">
+                                <p style="color: #718096; text-align: center; padding: 2rem;">Select a textbook to see chapters</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="question-distribution">
+                        <h3 class="distribution-title">
+                            <i class="fas fa-question-circle"></i> Question Distribution
+                        </h3>
+                        <div class="question-types-grid">
+                            <div class="question-type-card">
+                                <div class="question-type-label">MCQ Questions</div>
+                                <input type="number" class="form-control question-count-input" 
+                                       id="mcqCount" min="0" max="20" value="5">
+                            </div>
+                            <div class="question-type-card">
+                                <div class="question-type-label">Short Answer</div>
+                                <input type="number" class="form-control question-count-input" 
+                                       id="shortCount" min="0" max="20" value="3">
+                            </div>
+                            <div class="question-type-card">
+                                <div class="question-type-label">Long Answer</div>
+                                <input type="number" class="form-control question-count-input" 
+                                       id="longCount" min="0" max="20" value="2">
+                            </div>
+                            <div class="question-type-card">
+                                <div class="question-type-label">Case Study</div>
+                                <input type="number" class="form-control question-count-input" 
+                                       id="caseStudyCount" min="0" max="10" value="0">
+                            </div>
+                            <div class="question-type-card">
+                                <div class="question-type-label">Analytical Reasoning</div>
+                                <input type="number" class="form-control question-count-input" 
+                                       id="analyticalCount" min="0" max="10" value="0">
+                            </div>
+                        </div>
+                        <div class="total-questions">
+                            Total Questions: <span id="totalCount">10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paperTitle" class="form-label">
+                            <i class="fas fa-file-alt"></i> Mock Exam Title (Optional)
+                        </label>
+                        <input type="text" class="form-control" id="paperTitle" 
+                               placeholder="Enter a custom title for your mock exam">
+                    </div>
+                    
+                    <div class="generate-section">
+                        <button type="submit" class="btn-generate">
+                            <i class="fas fa-magic"></i>
+                            Generate Mock Exam
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="loadingState" class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Generating Your Mock Exam...</div>
+                <div class="loading-subtext">This may take 30-60 seconds</div>
+            </div>
+            
+            <div id="generatedQuestions" class="generated-questions">
+                <div class="questions-header">
+                    <h3 class="questions-title">
+                        <i class="fas fa-list-alt"></i> Generated Mock Exam
+                    </h3>
+                    <div class="questions-actions">
+                        <button class="btn-secondary" onclick="downloadPDF()">
+                            <i class="fas fa-download"></i> Download PDF
+                        </button>
+                        <button class="btn-attempt" id="attemptBtn" onclick="attemptExam()" disabled>
+                            <i class="fas fa-pencil-alt"></i> Attempt Mock Exam
+                        </button>
+                        <button class="btn-secondary" onclick="generateAnother()">
+                            <i class="fas fa-plus"></i> Generate Another
+                        </button>
+                    </div>
+                </div>
+                <div id="questionsList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentPaperId = null;
+        
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCourses();
+            loadExamTypes();
+            updateTotalQuestions();
+            
+            // Add event listeners for question count inputs
+            document.querySelectorAll('.question-count-input').forEach(input => {
+                input.addEventListener('input', updateTotalQuestions);
+            });
+            
+            // Course selection handler
+            document.getElementById('courseSelect').addEventListener('change', function() {
+                const courseId = this.value;
+                if (courseId) {
+                    loadTextbooks(courseId);
+                } else {
+                    document.getElementById('textbookSelect').innerHTML = '<option value="">Choose a textbook...</option>';
+                    document.getElementById('chaptersList').innerHTML = '<p style="color: #718096; text-align: center; padding: 2rem;">Select a textbook to see chapters</p>';
+                }
+            });
+            
+            // Textbook selection handler
+            document.getElementById('textbookSelect').addEventListener('change', function() {
+                const textbookId = this.value;
+                if (textbookId) {
+                    loadChapters(textbookId);
+                } else {
+                    document.getElementById('chaptersList').innerHTML = '<p style="color: #718096; text-align: center; padding: 2rem;">Select a textbook to see chapters</p>';
+                }
+            });
+            
+            // Form submission
+            document.getElementById('mockExamForm').addEventListener('submit', generateMockExam);
+        });
+        
+        function loadCourses() {
+            fetch('/api/courses')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('courseSelect');
+                    select.innerHTML = '<option value="">Choose a course...</option>';
+                    data.courses.forEach(course => {
+                        select.innerHTML += `<option value="${course.id}">${course.code} - ${course.name}</option>`;
+                    });
+                })
+                .catch(error => console.error('Error loading courses:', error));
+        }
+        
+        function loadExamTypes() {
+            fetch('/api/exam-types')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('examTypeSelect');
+                    select.innerHTML = '<option value="">Choose exam type...</option>';
+                    data.exam_types.forEach(type => {
+                        select.innerHTML += `<option value="${type.id}">${type.name}</option>`;
+                    });
+                })
+                .catch(error => console.error('Error loading exam types:', error));
+        }
+        
+        function loadTextbooks(courseId) {
+            fetch(`/api/textbooks?course_id=${courseId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('textbookSelect');
+                    select.innerHTML = '<option value="">Choose a textbook...</option>';
+                    data.textbooks.forEach(textbook => {
+                        select.innerHTML += `<option value="${textbook.id}">${textbook.title}</option>`;
+                    });
+                })
+                .catch(error => console.error('Error loading textbooks:', error));
+        }
+        
+        function loadChapters(textbookId, forceRefresh = false) {
+            const container = document.getElementById('chaptersList');
+            container.innerHTML = '<p style="color: #2563eb; text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Extracting chapters...</p>';
+            
+            const url = forceRefresh
+                ? `/api/chapters/${textbookId}/refresh`
+                : `/api/chapters/${textbookId}`;
+            const method = forceRefresh ? 'POST' : 'GET';
+
+            fetch(url, { method })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        container.innerHTML = '<p style="color: #f56565; text-align: center; padding: 2rem;">Error: ' + data.error + '</p>';
+                        return;
+                    }
+                    if (!data.chapters || data.chapters.length === 0) {
+                        container.innerHTML = '<p style="color:#64748b;text-align:center;padding:2rem;">No chapters found for this textbook. <button onclick="loadChapters(' + textbookId + ', true)" style="color:#2563eb;background:none;border:none;cursor:pointer;text-decoration:underline;">Try re-extracting</button></p>';
+                        return;
+                    }
+                    
+                    let html = `<div style="text-align:right;margin-bottom:0.5rem;">
+                        <button type="button" onclick="loadChapters(${textbookId}, true)" style="font-size:0.75rem;color:#2563eb;background:none;border:1px solid #2563eb;border-radius:4px;padding:2px 8px;cursor:pointer;font-family:inherit;">
+                            <i class="fas fa-sync-alt"></i> Re-extract Chapters
+                        </button></div>`;
+                    data.chapters.forEach(chapter => {
+                        const chTitle = chapter.title || `Chapter ${chapter.number}`;
+                        html += `
+                            <div class="chapter-item">
+                                <label>
+                                    <input type="checkbox" name="chapters" value="${chapter.id}">
+                                    <span>${chTitle}</span>
+                                </label>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading chapters:', error);
+                    container.innerHTML = '<p style="color: #f56565; text-align: center; padding: 2rem;">Error loading chapters. Please try again.</p>';
+                });
+        }
+        
+        function updateTotalQuestions() {
+            const mcq = parseInt(document.getElementById('mcqCount').value) || 0;
+            const short = parseInt(document.getElementById('shortCount').value) || 0;
+            const long = parseInt(document.getElementById('longCount').value) || 0;
+            const caseStudy = parseInt(document.getElementById('caseStudyCount').value) || 0;
+            const analytical = parseInt(document.getElementById('analyticalCount').value) || 0;
+            document.getElementById('totalCount').textContent = mcq + short + long + caseStudy + analytical;
+        }
+        
+        function generateMockExam(e) {
+            e.preventDefault();
+            
+            const courseId = document.getElementById('courseSelect').value;
+            const examTypeId = document.getElementById('examTypeSelect').value;
+            const textbookId = document.getElementById('textbookSelect').value;
+            const paperTitle = document.getElementById('paperTitle').value;
+            
+            if (!courseId || !textbookId) {
+                alert('Please select a course and textbook');
+                return;
+            }
+            
+            const selectedChapters = Array.from(document.querySelectorAll('input[name="chapters"]:checked'))
+                .map(cb => parseInt(cb.value));
+            
+            if (selectedChapters.length === 0) {
+                alert('Please select at least one chapter');
+                return;
+            }
+            
+            const mcqCount = parseInt(document.getElementById('mcqCount').value) || 0;
+            const shortCount = parseInt(document.getElementById('shortCount').value) || 0;
+            const longCount = parseInt(document.getElementById('longCount').value) || 0;
+            const caseStudyCount = parseInt(document.getElementById('caseStudyCount').value) || 0;
+            const analyticalCount = parseInt(document.getElementById('analyticalCount').value) || 0;
+            
+            if (mcqCount + shortCount + longCount + caseStudyCount + analyticalCount === 0) {
+                alert('Please specify at least one question');
+                return;
+            }
+            
+            // Hide form and show loading
+            document.getElementById('generationForm').style.display = 'none';
+            document.getElementById('generatedQuestions').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'block';
+            
+            // Generate mock exam
+            fetch('/api/generate-mock-paper', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    course_id: courseId,
+                    exam_type_id: examTypeId || null,
+                    chapters: selectedChapters,
+                    mode: 'chapters',
+                    question_type_distribution: {
+                        mcq: mcqCount,
+                        short_answer: shortCount,
+                        long_answer: longCount,
+                        case_study: caseStudyCount,
+                        analytical: analyticalCount
+                    },
+                    paper_title: paperTitle || 'Practice Test'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingState').style.display = 'none';
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    document.getElementById('generationForm').style.display = 'block';
+                    return;
+                }
+                
+                currentPaperId = data.mock_paper_id;
+                displayQuestions(data.questions);
+                document.getElementById('generatedQuestions').style.display = 'block';
+                // Enable attempt button with correct paper ID
+                var btn = document.getElementById('attemptBtn');
+                btn.disabled = false;
+                btn.setAttribute('data-paper-id', data.mock_paper_id);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loadingState').style.display = 'none';
+                alert('An error occurred while generating the mock exam');
+                document.getElementById('generationForm').style.display = 'block';
+            });
+        }
+        
+        function displayQuestions(questions) {
+            const container = document.getElementById('questionsList');
+            let html = '';
+            
+            const typeLabels = {
+                mcq: 'MCQ', short_answer: 'SHORT ANSWER', long_answer: 'LONG ANSWER',
+                case_study: 'CASE STUDY', analytical: 'ANALYTICAL REASONING'
+            };
+            questions.forEach((question, index) => {
+                const typeLabel = typeLabels[question.question_type] || question.question_type.replace(/_/g,' ').toUpperCase();
+                html += `
+                    <div class="question-card">
+                        <div class="question-header">
+                            <span class="question-number">Question ${question.question_number}</span>
+                            <span class="question-type-badge">${typeLabel}</span>
+                        </div>
+                        <div class="question-text">${question.question_text}</div>
+                `;
+                
+                if (['mcq', 'case_study', 'analytical'].includes(question.question_type) && question.options) {
+                    html += '<div class="mcq-options">';
+                    question.options.forEach((option, idx) => {
+                        const letter = String.fromCharCode(65 + idx);
+                        html += `<div class="mcq-option">${letter}. ${option}</div>`;
+                    });
+                    html += '</div>';
+                }
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function downloadPDF() {
+            if (currentPaperId) {
+                window.open(`/api/download-mock-paper/${currentPaperId}`, '_blank');
+            }
+        }
+        
+        function attemptExam() {
+            var btn = document.getElementById('attemptBtn');
+            var paperId = btn.getAttribute('data-paper-id');
+            if (paperId) {
+                window.location.href = '/attempt-mock-exam/' + paperId;
+            }
+        }
+
+        function generateAnother() {
+            document.getElementById('generatedQuestions').style.display = 'none';
+            document.getElementById('generationForm').style.display = 'block';
+            var btn = document.getElementById('attemptBtn');
+            btn.disabled = true;
+            btn.removeAttribute('data-paper-id');
+            currentPaperId = null;
+        }
+    </script>
+</body>
+</html>

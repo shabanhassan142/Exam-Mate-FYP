@@ -1,0 +1,26 @@
+# Local configuration and secrets
+config.py
+.env
+.env.*
+!.env.example
+
+# User data and generated databases
+users.db
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+textbooks/
+QA_dataset.csv
+
+# Large generated artifacts
+vector_db/
+vector_indexes/
+tinyllama_model*/
+
+# Python and editor artifacts
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.vscode/

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - AI Exam Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+
+    :root {
+        --bg:        #0f1117;
+        --bg2:       #161b27;
+        --bg3:       #1e2535;
+        --card:      #1a2236;
+        --card2:     #212d42;
+        --border:    #2a3550;
+        --border2:   #344060;
+        --primary:   #14b8a6;
+        --primary2:  #0d9488;
+        --primary3:  #99f6e4;
+        --accent:    #f59e0b;
+        --accent2:   #fbbf24;
+        --accent3:   #fef3c7;
+        --purple:    #8b5cf6;
+        --purple2:   #a78bfa;
+        --red:       #ef4444;
+        --red2:      #fca5a5;
+        --green:     #10b981;
+        --green2:    #6ee7b7;
+        --text:      #e2e8f0;
+        --text2:     #94a3b8;
+        --text3:     #64748b;
+        --radius:    14px;
+        --radius2:   10px;
+        --shadow:    0 4px 24px rgba(0,0,0,0.4);
+        --shadow2:   0 2px 8px rgba(0,0,0,0.3);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    @keyframes fadeInUp {
+        from { opacity:0; transform:translateY(20px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes spin {
+        0%   { transform:rotate(0deg); }
+        100% { transform:rotate(360deg); }
+    }
+    @keyframes pulse {
+        0%,100% { opacity:1; }
+        50%      { opacity:.6; }
+    }
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg2); }
+    ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+    body { font-family:'Inter',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
+    .header { background:var(--bg2); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.4); }
+    .header-left { display:flex; align-items:center; gap:.75rem; }
+    .header-icon { width:40px; height:40px; background:linear-gradient(135deg,var(--accent),var(--primary)); border-radius:10px; display:flex; align-items:center; justify-content:center; }
+    .header-icon i { font-size:1.2rem; color:#0f1117; }
+    .header h1 { font-size:1.4rem; font-weight:700; color:var(--accent2); }
+    .user-info { display:flex; align-items:center; gap:.75rem; }
+    .user-avatar { width:36px; height:36px; background:linear-gradient(135deg,var(--accent),var(--primary)); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#0f1117; font-weight:700; font-size:.9rem; }
+    .user-info span { font-weight:500; color:var(--text2); font-size:.9rem; }
+    .logout-btn { background:rgba(239,68,68,.15); color:var(--red2); border:1px solid rgba(239,68,68,.3); padding:.55rem 1.1rem; border-radius:var(--radius2); font-weight:600; font-size:.9rem; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:.4rem; }
+    .logout-btn:hover { background:rgba(239,68,68,.25); transform:translateY(-1px); color:var(--red2); text-decoration:none; }
+    .container { max-width:1400px; margin:0 auto; padding:2.5rem 2rem; }
+    .welcome-section { background:var(--card); padding:2.5rem; border-radius:var(--radius); border:1px solid var(--border); border-top:3px solid var(--accent); box-shadow:var(--shadow); margin-bottom:2.5rem; text-align:center; animation:fadeInUp .5s ease both; }
+    .welcome-section h2 { font-size:2rem; font-weight:700; margin-bottom:.75rem; color:var(--text); }
+    .welcome-section p  { font-size:1rem; color:var(--text2); max-width:600px; margin:0 auto; line-height:1.7; }
+    .features-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem; margin-bottom:2.5rem; }
+
+    /* ── Feature card shell ── */
+    .feature-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: var(--card);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: transform .3s ease, box-shadow .3s ease;
+        animation: fadeInUp .5s ease both;
+        box-shadow: 0 2px 12px rgba(0,0,0,.35);
+    }
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 20px;
+        padding: 1.5px;
+        background: linear-gradient(135deg, var(--accent), var(--primary), var(--purple));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity .35s ease;
+        pointer-events: none;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(245,158,11,.2); }
+
+    .card-banner { height: 6px; background: linear-gradient(90deg, var(--accent), var(--accent2)); flex-shrink: 0; }
+    .card-body { padding: 1.6rem 1.75rem 1.4rem; display: flex; flex-direction: column; flex: 1; }
+    .card-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+
+    .feature-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; font-size: 1.5rem;
+        background: linear-gradient(135deg, rgba(245,158,11,.25), rgba(20,184,166,.2));
+        border: 1px solid rgba(245,158,11,.25);
+        box-shadow: 0 4px 14px rgba(245,158,11,.15);
+        transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .feature-card:hover .feature-icon { transform: scale(1.08) rotate(-4deg); box-shadow: 0 8px 24px rgba(245,158,11,.3); }
+    .feature-icon i { font-size: 1.5rem; color: var(--accent); }
+
+    .feature-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .feature-card p  { color: var(--text2); line-height: 1.65; margin-bottom: 1.25rem; font-size: .85rem; flex: 1; }
+
+    .card-cta { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: auto; }
+    .cta-label { font-size: .82rem; font-weight: 600; color: var(--accent2); letter-spacing: .02em; }
+    .cta-arrow { width: 32px; height: 32px; border-radius: 50%; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.25); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: .85rem; transition: all .25s ease; }
+    .feature-card:hover .cta-arrow { background: var(--accent); color: #0f1117; transform: translateX(3px); }
+
+    .feature-btn { display: none; } /* hidden — CTA row replaces it */
+
+    /* Make the whole feature card clickable via JS */
+    .feature-card[data-href] { cursor: pointer; }
+
+    /* ── Quick actions ── */
+    .quick-actions { background:var(--card); padding:2.5rem; border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); margin-bottom:2.5rem; }
+    .quick-actions h3 { text-align:center; margin-bottom:2rem; font-size:1.5rem; font-weight:700; color:var(--text); }
+    .actions-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.25rem; }
+    .action-btn { padding:1.5rem; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius2); cursor:pointer; transition:all .25s; text-align:center; text-decoration:none; color:var(--text2); display:block; }
+    .action-btn:hover { border-color:var(--accent); background:rgba(245,158,11,.08); transform:translateY(-3px); color:var(--text); text-decoration:none; }
+    .action-btn strong { display:block; font-size:1rem; margin-bottom:.4rem; color:var(--text); }
+    .action-btn small  { font-size:.85rem; color:var(--text3); }
+
+    /* ── Stats ── */
+    .stats-section { background:var(--card); padding:2.5rem; border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); }
+    .stats-section h3 { text-align:center; margin-bottom:2rem; font-size:1.5rem; font-weight:700; color:var(--text); }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.5rem; }
+    .stat-item { text-align:center; padding:1.75rem; background:var(--bg3); border-radius:var(--radius2); border:1px solid var(--border); transition:all .25s; }
+    .stat-item:hover { border-color:var(--accent); transform:translateY(-3px); }
+    .stat-number { font-size:2.5rem; font-weight:700; color:var(--accent); margin-bottom:.4rem; }
+    .stat-label  { color:var(--text2); font-weight:500; font-size:.9rem; }
+    @media(max-width:768px) { .container{padding:1.5rem 1rem;} .header{padding:1rem;} .features-grid{grid-template-columns:1fr;} }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <h1>Teacher Dashboard</h1>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">{{ username[0].upper() }}</div>
+            <span>Welcome, {{ username }}!</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="welcome-section">
+            <h2>Welcome to AI Exam Management System</h2>
+            <p>Access powerful tools for creating fair, balanced exam papers with AI assistance. Manage your question bank and analyze student performance effectively.</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card" data-href="{{ url_for('past_papers_page') }}">
+                <div class="card-banner"></div>
+                <div class="card-body">
+                    <div class="card-head">
+                        <div class="feature-icon"><i class="fas fa-database"></i></div>
+                        <h3>Question Bank Manager</h3>
+                    </div>
+                    <p>Upload and organize questions with automatic OCR for scanned papers. Tag questions by course, topic, marks, and difficulty level for efficient management.</p>
+                    <div class="card-cta">
+                        <span class="cta-label">Past Papers</span>
+                        <span class="cta-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card" data-href="{{ url_for('difficulty_checker') }}">
+                <div class="card-banner" style="background:linear-gradient(90deg,var(--purple),var(--accent));"></div>
+                <div class="card-body">
+                    <div class="card-head">
+                        <div class="feature-icon" style="background:linear-gradient(135deg,rgba(139,92,246,.25),rgba(245,158,11,.15));border-color:rgba(139,92,246,.25);">
+                            <i class="fas fa-balance-scale" style="color:var(--purple2);"></i>
+                        </div>
+                        <h3>Difficulty Analyzer</h3>
+                    </div>
+                    <p>Automatically evaluate question difficulty based on historical data, text complexity, and Bloom's taxonomy levels for balanced assessments.</p>
+                    <div class="card-cta">
+                        <span class="cta-label" style="color:var(--purple2);">Open Difficulty Module</span>
+                        <span class="cta-arrow" style="background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.25);color:var(--purple2);">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card" data-href="{{ url_for('similarity_checker') }}">
+                <div class="card-banner" style="background:linear-gradient(90deg,var(--primary),var(--green));"></div>
+                <div class="card-body">
+                    <div class="card-head">
+                        <div class="feature-icon" style="background:linear-gradient(135deg,rgba(20,184,166,.25),rgba(16,185,129,.2));border-color:rgba(20,184,166,.25);">
+                            <i class="fas fa-search" style="color:var(--primary3);"></i>
+                        </div>
+                        <h3>Similarity Checker</h3>
+                    </div>
+                    <p>Upload your exam paper to check its similarity with existing past papers. Get detailed analysis of question similarities and originality scores.</p>
+                    <div class="card-cta">
+                        <span class="cta-label" style="color:var(--primary3);">Check Similarity</span>
+                        <span class="cta-arrow" style="background:rgba(20,184,166,.12);border-color:rgba(20,184,166,.25);color:var(--primary3);">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card" data-href="{{ url_for('ai_paper_generator') }}">
+                <div class="card-banner" style="background:linear-gradient(90deg,var(--accent2),var(--primary));"></div>
+                <div class="card-body">
+                    <div class="card-head">
+                        <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                        <h3>AI Paper Generator</h3>
+                    </div>
+                    <p>Generate balanced exam papers with proper syllabus coverage, difficulty mix, and no repeated questions automatically using AI technology.</p>
+                    <div class="card-cta">
+                        <span class="cta-label">Generate Paper</span>
+                        <span class="cta-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="actions-grid">
+                <div class="action-btn">
+                    <strong>Upload Questions</strong>
+                    <small>Add new questions to the bank</small>
+                </div>
+                <div class="action-btn">
+                    <strong>Create Exam Paper</strong>
+                    <small>Generate new exam paper</small>
+                </div>
+                <div class="action-btn">
+                    <strong>View Analytics</strong>
+                    <small>Check class performance</small>
+                </div>
+                <div class="action-btn">
+                    <strong>Manage Courses</strong>
+                    <small>Organize course materials</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-section">
+            <h3>Your Teaching Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Questions in Bank</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Exam Papers Created</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Active Courses</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Students Enrolled</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards
+            const cards = document.querySelectorAll('.feature-card, .stat-item, .action-btn');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = (index * 0.07) + 's';
+            });
+
+            // Make feature cards clickable via data-href
+            document.querySelectorAll('.feature-card[data-href]').forEach(card => {
+                card.addEventListener('click', function() {
+                    window.location.href = this.dataset.href;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

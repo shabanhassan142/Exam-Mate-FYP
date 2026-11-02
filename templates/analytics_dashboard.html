@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - AI Exam Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+    :root {
+        --bg:      #0f1117; --bg2: #161b27; --bg3: #1e2535;
+        --card:    #1a2236; --card2: #212d42;
+        --border:  #2a3550; --border2: #344060;
+        --primary: #14b8a6; --primary2: #0d9488; --primary3: #99f6e4;
+        --accent:  #f59e0b; --accent2: #fbbf24;
+        --purple:  #8b5cf6; --purple2: #a78bfa;
+        --red:     #ef4444; --red2: #fca5a5;
+        --green:   #10b981; --green2: #6ee7b7;
+        --text:    #e2e8f0; --text2: #94a3b8; --text3: #64748b;
+        --radius:  14px; --radius2: 10px; --shadow: 0 4px 24px rgba(0,0,0,.4);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
+    ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:var(--bg2); } ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* Header */
+    .header { background:var(--bg2); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); box-shadow:0 2px 12px rgba(0,0,0,.4); position:sticky; top:0; z-index:100; }
+    .header-left { display:flex; align-items:center; gap:.75rem; }
+    .header-icon { width:40px; height:40px; background:linear-gradient(135deg,var(--primary),var(--green)); border-radius:10px; display:flex; align-items:center; justify-content:center; }
+    .header-icon i { font-size:1.2rem; color:#0f1117; }
+    .header h1 { font-size:1.4rem; font-weight:700; color:var(--green2); }
+    .back-btn { background:rgba(16,185,129,.12); color:var(--green2); border:1px solid rgba(16,185,129,.3); padding:.55rem 1.1rem; border-radius:var(--radius2); font-weight:600; font-size:.9rem; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:.4rem; }
+    .back-btn:hover { background:rgba(16,185,129,.22); transform:translateY(-1px); color:var(--green2); text-decoration:none; }
+
+    /* Layout */
+    .container { max-width:1400px; margin:0 auto; padding:2rem; }
+
+    /* Loading */
+    #loadingState { text-align:center; padding:5rem; }
+    .spinner { width:52px; height:52px; border:4px solid var(--border2); border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 1.25rem; }
+
+    /* Overview cards */
+    .overview-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1.25rem; margin-bottom:2rem; animation:fadeInUp .4s ease both; }
+    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1.4rem 1.5rem; display:flex; flex-direction:column; gap:.5rem; }
+    .stat-card .stat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; margin-bottom:.25rem; }
+    .stat-card .stat-value { font-size:2rem; font-weight:700; color:var(--text); line-height:1; }
+    .stat-card .stat-label { font-size:.82rem; color:var(--text2); font-weight:500; }
+
+    /* Charts grid */
+    .charts-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(420px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+    .chart-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; animation:fadeInUp .5s ease both; }
+    .chart-card.full { grid-column:1/-1; }
+    .chart-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
+    .chart-title i { color:var(--primary); }
+    .chart-wrap { position:relative; height:220px; }
+    .chart-wrap.tall { height:280px; }
+
+    /* Recommendations */
+    .rec-card { background:var(--card); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:var(--radius); padding:1.5rem; margin-bottom:2rem; animation:fadeInUp .5s ease both; }
+    .rec-title { font-size:1rem; font-weight:700; color:var(--accent2); margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
+    .rec-list { list-style:none; display:flex; flex-direction:column; gap:.6rem; }
+    .rec-list li { display:flex; align-items:flex-start; gap:.6rem; font-size:.9rem; color:var(--text2); line-height:1.5; }
+    .rec-list li i { color:var(--accent); margin-top:2px; flex-shrink:0; }
+
+    /* Activity feed */
+    .feed-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; animation:fadeInUp .55s ease both; }
+    .feed-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
+    .feed-title i { color:var(--primary); }
+    .feed-list { display:flex; flex-direction:column; gap:.6rem; max-height:320px; overflow-y:auto; }
+    .feed-item { display:flex; align-items:flex-start; gap:.75rem; padding:.65rem .85rem; background:var(--bg3); border-radius:var(--radius2); border:1px solid var(--border); }
+    .feed-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+    .feed-dot.mock_exam { background:var(--purple); }
+    .feed-dot.exam_bee  { background:var(--accent); }
+    .feed-dot.past_papers { background:var(--primary); }
+    .feed-dot.chatbot { background:var(--green); }
+    .feed-content { flex:1; }
+    .feed-action { font-size:.85rem; font-weight:600; color:var(--text); }
+    .feed-detail { font-size:.78rem; color:var(--text2); margin-top:1px; }
+    .feed-time { font-size:.72rem; color:var(--text3); white-space:nowrap; }
+    .empty-state { text-align:center; padding:2.5rem; color:var(--text3); font-size:.9rem; }
+
+    /* Weak areas badge */
+    .weak-badge { display:inline-flex; align-items:center; gap:.35rem; background:rgba(239,68,68,.15); color:var(--red2); border:1px solid rgba(239,68,68,.3); border-radius:50px; padding:.25rem .75rem; font-size:.78rem; font-weight:600; margin:.2rem; }
+
+    @media(max-width:768px) {
+        .container { padding:1rem; }
+        .charts-grid { grid-template-columns:1fr; }
+        .overview-grid { grid-template-columns:repeat(2,1fr); }
+    }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-left">
+        <div class="header-icon"><i class="fas fa-chart-line"></i></div>
+        <h1>Analytics Dashboard</h1>
+    </div>
+    <a href="{{ url_for('student_dashboard') }}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Dashboard
+    </a>
+</div>
+
+<div class="container">
+    <div id="loadingState">
+        <div class="spinner"></div>
+        <p style="color:var(--text2);">Loading your analytics...</p>
+    </div>
+
+    <div id="analyticsContent" style="display:none;">
+
+        <!-- Overview stats -->
+        <div class="overview-grid" id="overviewGrid"></div>
+
+        <!-- Recommendations -->
+        <div class="rec-card" id="recCard">
+            <div class="rec-title"><i class="fas fa-lightbulb"></i> Recommendations</div>
+            <ul class="rec-list" id="recList"></ul>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Score trend -->
+            <div class="chart-card full">
+                <div class="chart-title"><i class="fas fa-chart-line"></i> Score Trend (Last 10 Attempts)</div>
+                <div class="chart-wrap tall"><canvas id="scoreTrendChart"></canvas></div>
+            </div>
+
+            <!-- Course activity -->
+            <div class="chart-card">
+                <div class="chart-title"><i class="fas fa-book"></i> Mock Exams by Course</div>
+                <div class="chart-wrap"><canvas id="courseActivityChart"></canvas></div>
+            </div>
+
+            <!-- Avg score per course -->
+            <div class="chart-card">
+                <div class="chart-title"><i class="fas fa-star"></i> Average Score by Course</div>
+                <div class="chart-wrap"><canvas id="courseScoreChart"></canvas></div>
+            </div>
+
+            <!-- Question type distribution -->
+            <div class="chart-card">
+                <div class="chart-title"><i class="fas fa-list-alt"></i> Question Types Attempted</div>
+                <div class="chart-wrap"><canvas id="qtypeChart"></canvas></div>
+            </div>
+
+            <!-- Difficulty distribution -->
+            <div class="chart-card">
+                <div class="chart-title"><i class="fas fa-tachometer-alt"></i> Difficulty Distribution</div>
+                <div class="chart-wrap"><canvas id="diffChart"></canvas></div>
+            </div>
+
+            <!-- Bloom's level (Exam Bee) -->
+            <div class="chart-card">
+                <div class="chart-title"><i class="fas fa-brain"></i> Exam Bee — Bloom's Levels Used</div>
+                <div class="chart-wrap"><canvas id="bloomChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Activity feed -->
+        <div class="feed-card">
+            <div class="feed-title"><i class="fas fa-history"></i> Recent Activity</div>
+            <div class="feed-list" id="feedList"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const CHART_DEFAULTS = {
+    color: '#e2e8f0',
+    gridColor: 'rgba(42,53,80,.6)',
+    font: { family: 'Inter', size: 11 }
+};
+
+Chart.defaults.color = CHART_DEFAULTS.color;
+Chart.defaults.font  = CHART_DEFAULTS.font;
+
+function makeGradient(ctx, color1, color2) {
+    const g = ctx.createLinearGradient(0, 0, 0, 220);
+    g.addColorStop(0, color1);
+    g.addColorStop(1, color2);
+    return g;
+}
+
+function gridOpts() {
+    return { color: CHART_DEFAULTS.gridColor, drawBorder: false };
+}
+
+function tickOpts() {
+    return { color: '#94a3b8' };
+}
+
+async function loadAnalytics() {
+    try {
+        const res  = await fetch('/api/analytics/data');
+        const data = await res.json();
+        if (data.error) { showError(data.error); return; }
+
+        renderOverview(data.overview);
+        renderRecommendations(data.recommendations, data.weak_courses);
+        renderScoreTrend(data.score_trend);
+        renderCourseActivity(data.course_activity);
+        renderCourseScores(data.course_scores);
+        renderQtype(data.qtype_dist);
+        renderDiff(data.diff_dist);
+        renderBloom(data.bloom_counts);
+        renderFeed(data.activity_feed);
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('analyticsContent').style.display = 'block';
+    } catch(e) {
+        showError('Failed to load analytics. Please try again.');
+    }
+}
+
+function showError(msg) {
+    document.getElementById('loadingState').innerHTML =
+        `<p style="color:var(--red2);font-size:1rem;"><i class="fas fa-exclamation-circle"></i> ${msg}</p>`;
+}
+
+function renderOverview(o) {
+    const items = [
+        { icon:'fa-file-alt',    color:'rgba(139,92,246,.2)',  iconColor:'var(--purple2)', value: o.total_mock_exams, label:'Mock Exams Generated' },
+        { icon:'fa-magic',       color:'rgba(245,158,11,.2)',  iconColor:'var(--accent2)', value: o.total_exam_bee,   label:'Exam Bee Sessions' },
+        { icon:'fa-pencil-alt',  color:'rgba(20,184,166,.2)',  iconColor:'var(--primary3)',value: o.total_attempts,   label:'Exams Attempted' },
+        { icon:'fa-download',    color:'rgba(16,185,129,.2)',  iconColor:'var(--green2)',  value: o.total_downloads,  label:'Past Papers Downloaded' },
+        { icon:'fa-star',        color:'rgba(251,191,36,.2)',  iconColor:'var(--accent2)', value: o.avg_score + '%',  label:'Average Score' },
+    ];
+    document.getElementById('overviewGrid').innerHTML = items.map(i => `
+        <div class="stat-card">
+            <div class="stat-icon" style="background:${i.color};">
+                <i class="fas ${i.icon}" style="color:${i.iconColor};"></i>
+            </div>
+            <div class="stat-value">${i.value}</div>
+            <div class="stat-label">${i.label}</div>
+        </div>`).join('');
+}
+
+function renderRecommendations(recs, weak) {
+    const list = document.getElementById('recList');
+    list.innerHTML = recs.map(r => `<li><i class="fas fa-arrow-right"></i>${r}</li>`).join('');
+}
+
+function renderScoreTrend(trend) {
+    if (!trend.length) { noData('scoreTrendChart', 'No attempts yet'); return; }
+    const ctx = document.getElementById('scoreTrendChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: trend.map(t => `${t.date} (${t.course})`),
+            datasets: [{
+                label: 'Score %',
+                data: trend.map(t => t.score),
+                borderColor: '#14b8a6',
+                backgroundColor: makeGradient(ctx, 'rgba(20,184,166,.35)', 'rgba(20,184,166,.02)'),
+                fill: true, tension: 0.4, pointRadius: 5,
+                pointBackgroundColor: '#14b8a6', pointBorderColor: '#0f1117', pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: gridOpts(), ticks: { ...tickOpts(), maxRotation: 30 } },
+                y: { grid: gridOpts(), ticks: tickOpts(), min: 0, max: 100,
+                     title: { display: true, text: 'Score %', color: '#94a3b8' } }
+            }
+        }
+    });
+}
+
+function renderCourseActivity(data) {
+    if (!data.length) { noData('courseActivityChart', 'No mock exams yet'); return; }
+    const ctx = document.getElementById('courseActivityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(d => d.course),
+            datasets: [{ label: 'Mock Exams', data: data.map(d => d.count),
+                backgroundColor: 'rgba(139,92,246,.7)', borderColor: '#8b5cf6',
+                borderWidth: 1, borderRadius: 6 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { grid: gridOpts(), ticks: tickOpts() }, y: { grid: gridOpts(), ticks: tickOpts() } }
+        }
+    });
+}
+
+function renderCourseScores(data) {
+    if (!data.length) { noData('courseScoreChart', 'No attempts yet'); return; }
+    const ctx = document.getElementById('courseScoreChart').getContext('2d');
+    const colors = data.map(d => d.avg < 50 ? 'rgba(239,68,68,.7)' : d.avg < 70 ? 'rgba(245,158,11,.7)' : 'rgba(16,185,129,.7)');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(d => d.course),
+            datasets: [{ label: 'Avg Score %', data: data.map(d => d.avg),
+                backgroundColor: colors, borderColor: colors.map(c => c.replace('.7', '1')),
+                borderWidth: 1, borderRadius: 6 }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: gridOpts(), ticks: tickOpts(), min: 0, max: 100 },
+                y: { grid: gridOpts(), ticks: tickOpts() }
+            }
+        }
+    });
+}
+
+function renderQtype(data) {
+    if (!data.length) { noData('qtypeChart', 'No questions attempted yet'); return; }
+    const palette = ['rgba(20,184,166,.8)','rgba(139,92,246,.8)','rgba(245,158,11,.8)','rgba(16,185,129,.8)','rgba(239,68,68,.8)'];
+    const ctx = document.getElementById('qtypeChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.map(d => d.type),
+            datasets: [{ data: data.map(d => d.count), backgroundColor: palette,
+                borderColor: '#1a2236', borderWidth: 2 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { padding: 12, boxWidth: 12 } } }
+        }
+    });
+}
+
+function renderDiff(data) {
+    const labels = ['easy', 'medium', 'hard'];
+    const values = labels.map(l => data[l] || 0);
+    if (values.every(v => v === 0)) { noData('diffChart', 'No questions attempted yet'); return; }
+    const ctx = document.getElementById('diffChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Easy', 'Medium', 'Hard'],
+            datasets: [{ data: values,
+                backgroundColor: ['rgba(16,185,129,.8)','rgba(245,158,11,.8)','rgba(239,68,68,.8)'],
+                borderColor: '#1a2236', borderWidth: 2 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { padding: 12, boxWidth: 12 } } }
+        }
+    });
+}
+
+function renderBloom(data) {
+    const labels = Object.keys(data);
+    const values = Object.values(data);
+    if (values.every(v => v === 0)) { noData('bloomChart', 'No Exam Bee sessions yet'); return; }
+    const ctx = document.getElementById('bloomChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Sessions',
+                data: values,
+                backgroundColor: 'rgba(139,92,246,.25)',
+                borderColor: '#8b5cf6',
+                pointBackgroundColor: '#8b5cf6',
+                pointBorderColor: '#0f1117',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                r: {
+                    grid: { color: CHART_DEFAULTS.gridColor },
+                    ticks: { color: '#94a3b8', backdropColor: 'transparent' },
+                    pointLabels: { color: '#e2e8f0', font: { size: 11 } }
+                }
+            }
+        }
+    });
+}
+
+function renderFeed(feed) {
+    const el = document.getElementById('feedList');
+    if (!feed.length) {
+        el.innerHTML = '<div class="empty-state"><i class="fas fa-history" style="font-size:2rem;margin-bottom:.5rem;display:block;"></i>No activity yet. Start using the modules!</div>';
+        return;
+    }
+    const moduleLabels = { mock_exam:'Mock Exam', exam_bee:'Exam Bee', past_papers:'Past Papers', chatbot:'Chatbot' };
+    const actionLabels = { generate:'Generated', attempt:'Attempted', download:'Downloaded' };
+    el.innerHTML = feed.map(f => `
+        <div class="feed-item">
+            <div class="feed-dot ${f.module}"></div>
+            <div class="feed-content">
+                <div class="feed-action">${actionLabels[f.action] || f.action} — ${moduleLabels[f.module] || f.module}</div>
+                <div class="feed-detail">${f.detail || ''}</div>
+            </div>
+            <div class="feed-time">${formatTime(f.time)}</div>
+        </div>`).join('');
+}
+
+function noData(canvasId, msg) {
+    const canvas = document.getElementById(canvasId);
+    const wrap = canvas.parentElement;
+    wrap.innerHTML = `<div class="empty-state" style="height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;">
+        <i class="fas fa-chart-bar" style="font-size:1.8rem;color:var(--text3);"></i>
+        <span>${msg}</span></div>`;
+}
+
+function formatTime(ts) {
+    if (!ts) return '';
+    const d = new Date(ts.replace(' ', 'T'));
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    return Math.floor(diff/86400) + 'd ago';
+}
+
+loadAnalytics();
+</script>
+</body>
+</html>

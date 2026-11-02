@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attempt Mock Exam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+
+    :root {
+        --bg:        #0f1117;
+        --bg2:       #161b27;
+        --bg3:       #1e2535;
+        --card:      #1a2236;
+        --card2:     #212d42;
+        --border:    #2a3550;
+        --border2:   #344060;
+        --primary:   #14b8a6;
+        --primary2:  #0d9488;
+        --primary3:  #99f6e4;
+        --accent:    #f59e0b;
+        --accent2:   #fbbf24;
+        --accent3:   #fef3c7;
+        --purple:    #8b5cf6;
+        --purple2:   #a78bfa;
+        --red:       #ef4444;
+        --red2:      #fca5a5;
+        --green:     #10b981;
+        --green2:    #6ee7b7;
+        --text:      #e2e8f0;
+        --text2:     #94a3b8;
+        --text3:     #64748b;
+        --radius:    14px;
+        --radius2:   10px;
+        --shadow:    0 4px 24px rgba(0,0,0,0.4);
+        --shadow2:   0 2px 8px rgba(0,0,0,0.3);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    @keyframes fadeInUp {
+        from { opacity:0; transform:translateY(20px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes spin {
+        0%   { transform:rotate(0deg); }
+        100% { transform:rotate(360deg); }
+    }
+    @keyframes pulse {
+        0%,100% { opacity:1; }
+        50%      { opacity:.6; }
+    }
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg2); }
+    ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+    body { font-family:'Inter',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
+    .header { background:var(--bg2); backdrop-filter:blur(20px); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 12px rgba(0,0,0,.4); position:sticky; top:0; z-index:100; border-bottom:1px solid var(--border); }
+    .header-left h1 { font-size:1.2rem; font-weight:700; color:var(--primary3); }
+    .header-left p  { color:var(--text3); font-size:.82rem; margin-top:2px; }
+    .header-right { display:flex; align-items:center; gap:1rem; }
+    .timer { background:linear-gradient(135deg,var(--primary),var(--primary2)); color:#0f1117; padding:.5rem 1.2rem; border-radius:50px; font-size:1rem; font-weight:700; display:flex; align-items:center; gap:.4rem; min-width:100px; justify-content:center; }
+    .timer.warning { background:linear-gradient(135deg,var(--accent),var(--accent2)); }
+    .timer.danger  { background:linear-gradient(135deg,var(--red),#dc2626); color:#fff; animation:pulse 1s infinite; }
+    .back-btn { background:rgba(20,184,166,.12); color:var(--primary3); border:1px solid rgba(20,184,166,.3); padding:.5rem 1rem; border-radius:8px; font-weight:500; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:.4rem; font-size:.9rem; transition:all .2s; }
+    .back-btn:hover { background:rgba(20,184,166,.22); color:var(--primary3); text-decoration:none; }
+    .container { max-width:860px; margin:0 auto; padding:1.5rem 1rem; }
+    .progress-label { color:var(--text2); font-size:.83rem; margin-bottom:.4rem; text-align:right; }
+    .progress-bar-wrap { background:var(--bg3); border-radius:50px; height:7px; margin-bottom:1.5rem; overflow:hidden; border:1px solid var(--border); }
+    .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); border-radius:50px; transition:width .4s ease; }
+    .question-card { background:var(--card); border-radius:var(--radius2); padding:1.75rem; margin-bottom:1.25rem; border:1px solid var(--border); border-left:4px solid var(--primary); transition:border-left-color .3s; }
+    .question-card.answered { border-left-color:var(--green); }
+    .q-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.9rem; }
+    .q-number { font-weight:700; color:var(--primary3); font-size:.95rem; }
+    .q-badges { display:flex; gap:.4rem; }
+    .badge { padding:.2rem .65rem; border-radius:20px; font-size:.75rem; font-weight:600; }
+    .badge-type  { background:rgba(20,184,166,.15);  color:var(--primary3); }
+    .badge-marks { background:rgba(16,185,129,.15);  color:var(--green2); }
+    .q-text { font-size:1rem; line-height:1.7; color:var(--text); margin-bottom:1.1rem; }
+    .options-grid { display:flex; flex-direction:column; gap:.6rem; }
+    .option-label { display:flex; align-items:center; gap:.7rem; padding:.8rem 1rem; border:1.5px solid var(--border2); border-radius:var(--radius2); cursor:pointer; transition:all .2s; font-size:.92rem; color:var(--text2); background:var(--bg3); }
+    .option-label:hover { border-color:var(--primary); background:rgba(20,184,166,.08); color:var(--text); }
+    .option-label.selected { border-color:var(--primary); background:rgba(20,184,166,.15); color:var(--primary3); }
+    .option-label input[type=radio] { accent-color:var(--primary); width:17px; height:17px; flex-shrink:0; }
+    .answer-textarea { width:100%; padding:.85rem 1rem; border:1.5px solid var(--border2); border-radius:var(--radius2); font-family:inherit; font-size:.92rem; resize:vertical; min-height:90px; background:var(--bg3); color:var(--text); transition:border-color .2s; }
+    .answer-textarea:focus { outline:none; border-color:var(--primary); }
+    .submit-section { background:var(--card); border-radius:var(--radius2); padding:1.75rem; text-align:center; border:1px solid var(--border); margin-top:.5rem; }
+    .submit-section p { color:var(--text2); margin-bottom:1.25rem; font-size:.9rem; }
+    .btn-submit { background:linear-gradient(135deg,var(--primary),var(--primary2)); color:#0f1117; border:none; padding:.9rem 2.5rem; border-radius:var(--radius2); font-size:1.05rem; font-weight:700; cursor:pointer; transition:all .3s; display:inline-flex; align-items:center; gap:.6rem; box-shadow:0 5px 18px rgba(20,184,166,.35); }
+    .btn-submit:hover { transform:translateY(-2px); box-shadow:0 9px 28px rgba(20,184,166,.45); }
+    .btn-submit:disabled { background:var(--bg3); color:var(--text3); cursor:not-allowed; transform:none; box-shadow:none; }
+    .results-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:200; overflow-y:auto; padding:2rem 1rem; }
+    .results-overlay.active { display:flex; align-items:flex-start; justify-content:center; }
+    .results-card { background:var(--card); border-radius:20px; padding:2.25rem; max-width:680px; width:100%; border:1px solid var(--border); border-top:3px solid var(--primary); box-shadow:0 20px 60px rgba(0,0,0,.6); margin:auto; }
+    .score-circle { width:130px; height:130px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--purple)); display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto 1.25rem; color:#0f1117; }
+    .score-circle .score-pct   { font-size:2rem; font-weight:800; line-height:1; }
+    .score-circle .score-label { font-size:.75rem; opacity:.85; }
+    .score-summary { text-align:center; margin-bottom:1.5rem; }
+    .score-summary h2 { font-size:1.5rem; font-weight:700; color:var(--text); margin-bottom:.3rem; }
+    .score-summary p  { color:var(--text2); font-size:.9rem; }
+    .score-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:.9rem; margin-bottom:1.5rem; }
+    .stat-box { background:var(--bg3); border-radius:var(--radius2); padding:.9rem; text-align:center; border:1px solid var(--border); }
+    .stat-box .stat-val { font-size:1.4rem; font-weight:700; color:var(--primary); }
+    .stat-box .stat-lbl { font-size:.75rem; color:var(--text3); margin-top:2px; }
+    .result-item { padding:.85rem 1rem; border-radius:9px; margin-bottom:.6rem; border-left:4px solid var(--border); }
+    .result-item.correct { border-left-color:var(--green); background:rgba(16,185,129,.1); }
+    .result-item.wrong   { border-left-color:var(--red);   background:rgba(239,68,68,.1); }
+    .result-item.text-q  { border-left-color:var(--primary); background:rgba(20,184,166,.08); }
+    .ri-header { display:flex; justify-content:space-between; font-weight:600; font-size:.85rem; margin-bottom:.3rem; color:var(--text); }
+    .ri-answer { font-size:.82rem; color:var(--text2); }
+    .ri-answer span { font-weight:600; color:var(--text); }
+    .results-actions { display:flex; gap:.9rem; justify-content:center; margin-top:1.4rem; flex-wrap:wrap; }
+    .btn-action { padding:.7rem 1.4rem; border-radius:var(--radius2); font-weight:600; cursor:pointer; border:none; display:inline-flex; align-items:center; gap:.45rem; transition:all .2s; text-decoration:none; font-size:.9rem; }
+    .btn-action.primary   { background:linear-gradient(135deg,var(--primary),var(--primary2)); color:#0f1117; }
+    .btn-action.secondary { background:var(--bg3); color:var(--text2); border:1px solid var(--border2); }
+    .btn-action:hover { transform:translateY(-2px); text-decoration:none; }
+    @media(max-width:600px) { .score-stats{grid-template-columns:1fr 1fr;} .header-left h1{font-size:1rem;} }
+
+    </style>
+</head>
+<body>
+
+<!-- Pass server data via data attributes — avoids Jinja/JS linter conflicts -->
+<div id="examMeta"
+     data-paper-id="{{ paper_id }}"
+     data-total-q="{{ questions|length }}"
+     style="display:none"></div>
+
+<div class="header">
+    <div class="header-left">
+        <h1><i class="fas fa-pencil-alt"></i> {{ paper_title }}</h1>
+        <p>{{ course_code }} &nbsp;|&nbsp; {{ exam_type }} &nbsp;|&nbsp; Total marks: {{ total_marks }}</p>
+    </div>
+    <div class="header-right">
+        <div class="timer" id="timer">
+            <i class="fas fa-clock"></i>&nbsp;<span id="timerDisplay">--:--</span>
+        </div>
+        <a href="{{ url_for('mock_exam_generator') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="progress-label" id="progressLabel">0 / {{ questions|length }} answered</div>
+    <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+
+    <form id="examForm">
+        {% for q in questions %}
+        <div class="question-card"
+             id="qcard-{{ q.number }}"
+             data-qnum="{{ q.number }}"
+             data-qtype="{{ q.type }}">
+
+            <div class="q-header">
+                <span class="q-number">Q{{ q.number }}</span>
+                <div class="q-badges">
+                    <span class="badge badge-type">{{ q.type.replace('_',' ').title() }}</span>
+                    <span class="badge badge-marks">
+                        {{ q.marks }} mark{% if q.marks != 1 %}s{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="q-text">{{ q.text }}</div>
+
+            {% if q.type == 'mcq' and q.options %}
+            <div class="options-grid">
+                {% for opt in q.options %}
+                {% set letter = ['A','B','C','D'][loop.index0] %}
+                <label class="option-label"
+                       id="opt-{{ q.number }}-{{ letter }}"
+                       data-qnum="{{ q.number }}"
+                       data-letter="{{ letter }}">
+                    <input type="radio"
+                           name="q{{ q.number }}"
+                           value="{{ letter }}"
+                           data-qnum="{{ q.number }}"
+                           data-letter="{{ letter }}">
+                    <span><strong>{{ letter }}.</strong> {{ opt }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+            <textarea class="answer-textarea"
+                      name="q{{ q.number }}"
+                      data-qnum="{{ q.number }}"
+                      placeholder="Write your answer here..."></textarea>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="submit-section">
+            <p>Review your answers before submitting. Unanswered questions will be left blank.</p>
+            <button type="button" class="btn-submit" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> Submit Exam
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Results overlay -->
+<div class="results-overlay" id="resultsOverlay">
+    <div class="results-card">
+        <div class="score-circle">
+            <span class="score-pct" id="resPct">0%</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="score-summary">
+            <h2 id="resHeading">Exam Submitted</h2>
+            <p id="resSubtext"></p>
+        </div>
+        <div class="score-stats">
+            <div class="stat-box">
+                <div class="stat-val" id="resEarned">0</div>
+                <div class="stat-lbl">Marks Earned</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="resTotal">0</div>
+                <div class="stat-lbl">Total Marks</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="resCorrect">0</div>
+                <div class="stat-lbl">MCQ Correct</div>
+            </div>
+        </div>
+        <div id="resultsList"></div>
+        <div class="results-actions">
+            <a href="{{ url_for('mock_exam_generator') }}" class="btn-action primary">
+                <i class="fas fa-plus"></i> New Mock Exam
+            </a>
+            <a href="{{ url_for('student_dashboard') }}" class="btn-action secondary">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Read server values from data attributes — no Jinja inside JS
+    const meta     = document.getElementById('examMeta');
+    const PAPER_ID = parseInt(meta.dataset.paperId, 10);
+    const TOTAL_Q  = parseInt(meta.dataset.totalQ, 10);
+    const EXAM_SECS = Math.max(TOTAL_Q * 120, 600);
+
+    const answers = {};
+    let timeLeft    = EXAM_SECS;
+    let timerHandle = null;
+
+    // ── Timer ──────────────────────────────────────────────────────────────────
+    function startTimer() {
+        timerHandle = setInterval(function () {
+            timeLeft--;
+            var m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+            var s = String(timeLeft % 60).padStart(2, '0');
+            document.getElementById('timerDisplay').textContent = m + ':' + s;
+            var el = document.getElementById('timer');
+            if (timeLeft <= 60)       { el.className = 'timer danger'; }
+            else if (timeLeft <= 300) { el.className = 'timer warning'; }
+            if (timeLeft <= 0) { clearInterval(timerHandle); submitExam(true); }
+        }, 1000);
+    }
+
+    // ── Track answers ──────────────────────────────────────────────────────────
+    function markAnswered(qNum, val) {
+        answers[qNum] = val;
+        var card = document.getElementById('qcard-' + qNum);
+        if (val && val.toString().trim()) {
+            card.classList.add('answered');
+        } else {
+            card.classList.remove('answered');
+        }
+        // Highlight selected MCQ option
+        document.querySelectorAll('[id^="opt-' + qNum + '-"]').forEach(function (el) {
+            el.classList.remove('selected');
+        });
+        var sel = document.getElementById('opt-' + qNum + '-' + val);
+        if (sel) { sel.classList.add('selected'); }
+        updateProgress();
+    }
+
+    function updateProgress() {
+        var answered = Object.values(answers).filter(function (v) {
+            return v && v.toString().trim();
+        }).length;
+        document.getElementById('progressFill').style.width =
+            Math.round(answered / TOTAL_Q * 100) + '%';
+        document.getElementById('progressLabel').textContent =
+            answered + ' / ' + TOTAL_Q + ' answered';
+    }
+
+    // ── Submit ─────────────────────────────────────────────────────────────────
+    function submitExam(auto) {
+        if (!auto) {
+            var answered = Object.values(answers).filter(function (v) {
+                return v && v.toString().trim();
+            }).length;
+            if (answered < TOTAL_Q) {
+                if (!confirm((TOTAL_Q - answered) + ' question(s) unanswered. Submit anyway?')) {
+                    return;
+                }
+            }
+        }
+        clearInterval(timerHandle);
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+        var payload = {};
+        Object.keys(answers).forEach(function (k) { payload[String(k)] = answers[k]; });
+
+        fetch('/api/submit-mock-exam', {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body   : JSON.stringify({ paper_id: PAPER_ID, answers: payload })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.error) { alert(data.error); return; }
+            showResults(data);
+        })
+        .catch(function () { alert('Submission failed. Please try again.'); });
+    }
+
+    // ── Show results ───────────────────────────────────────────────────────────
+    function showResults(data) {
+        document.getElementById('resPct').textContent    = data.percentage + '%';
+        document.getElementById('resEarned').textContent = data.earned_marks;
+        document.getElementById('resTotal').textContent  = data.total_marks;
+
+        var mcqCorrect = data.results.filter(function (r) {
+            return r.question_type === 'mcq' && r.is_correct;
+        }).length;
+        document.getElementById('resCorrect').textContent = mcqCorrect;
+
+        var pct = data.percentage;
+        var heading, subtext;
+        if      (pct >= 90) { heading = 'Excellent!';        subtext = 'Outstanding performance!'; }
+        else if (pct >= 75) { heading = 'Great Job!';         subtext = 'Well done, keep it up!'; }
+        else if (pct >= 60) { heading = 'Good Effort!';       subtext = "A bit more practice and you'll ace it."; }
+        else if (pct >= 40) { heading = 'Keep Practicing!';   subtext = 'Review the topics and try again.'; }
+        else                { heading = 'Needs Improvement';  subtext = "Don't give up — review and retry!"; }
+        document.getElementById('resHeading').textContent = heading;
+        document.getElementById('resSubtext').textContent = subtext;
+
+        var html = '<h3 style="font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:.9rem;">Question Breakdown</h3>';
+        data.results.forEach(function (r) {
+            if (r.question_type === 'mcq') {
+                var cls   = r.is_correct ? 'correct' : 'wrong';
+                var icon  = r.is_correct ? '&#10003;' : '&#10007;';
+                var color = r.is_correct ? '#059669'  : '#dc2626';
+                var marksLabel = r.is_correct
+                    ? (r.marks + ' mark' + (r.marks !== 1 ? 's' : ''))
+                    : '0 marks';
+                html += '<div class="result-item ' + cls + '">'
+                    + '<div class="ri-header">'
+                    + '<span>Q' + r.question_number + ' &mdash; MCQ</span>'
+                    + '<span style="color:' + color + '">' + icon + ' ' + marksLabel + '</span>'
+                    + '</div>'
+                    + '<div class="ri-answer">'
+                    + 'Your answer: <span>' + (r.user_answer || '(blank)') + '</span>'
+                    + ' &nbsp;|&nbsp; Correct: <span>' + r.correct_answer + '</span>'
+                    + '</div></div>';
+            } else {
+                var typeLabel = r.question_type.replace('_', ' ');
+                var ans = r.user_answer
+                    ? r.user_answer.substring(0, 120) + (r.user_answer.length > 120 ? '...' : '')
+                    : '(blank)';
+                html += '<div class="result-item text-q">'
+                    + '<div class="ri-header">'
+                    + '<span>Q' + r.question_number + ' &mdash; ' + typeLabel + '</span>'
+                    + '<span style="color:#3182ce">Self-assess (' + r.marks + ' mark' + (r.marks !== 1 ? 's' : '') + ')</span>'
+                    + '</div>'
+                    + '<div class="ri-answer">Your answer: <span>' + ans + '</span></div>'
+                    + '</div>';
+            }
+        });
+        document.getElementById('resultsList').innerHTML = html;
+        document.getElementById('resultsOverlay').classList.add('active');
+    }
+
+    // ── Wire up events on DOM ready ────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        startTimer();
+
+        // MCQ radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                var qNum = parseInt(this.dataset.qnum, 10);
+                var letter = this.dataset.letter;
+                markAnswered(qNum, letter);
+            });
+        });
+
+        // Text areas
+        document.querySelectorAll('textarea.answer-textarea').forEach(function (ta) {
+            ta.addEventListener('input', function () {
+                var qNum = parseInt(this.dataset.qnum, 10);
+                markAnswered(qNum, this.value);
+            });
+        });
+
+        // Submit button
+        document.getElementById('submitBtn').addEventListener('click', function () {
+            submitExam(false);
+        });
+    });
+</script>
+</body>
+</html>

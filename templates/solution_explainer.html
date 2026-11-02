@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Solution Explainer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+    :root {
+        --bg:#0f1117; --bg2:#161b27; --bg3:#1e2535;
+        --card:#1a2236; --card2:#212d42;
+        --border:#2a3550; --border2:#344060;
+        --primary:#14b8a6; --primary2:#0d9488; --primary3:#99f6e4;
+        --accent:#f59e0b; --accent2:#fbbf24;
+        --purple:#8b5cf6; --purple2:#a78bfa;
+        --red:#ef4444; --red2:#fca5a5;
+        --green:#10b981; --green2:#6ee7b7;
+        --text:#e2e8f0; --text2:#94a3b8; --text3:#64748b;
+        --radius:16px; --radius2:10px;
+        --shadow:0 4px 24px rgba(0,0,0,.4);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--bg2)} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+    body{font-family:'Inter',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
+
+    /* ── Header ── */
+    .header{background:var(--bg2);padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.4);position:sticky;top:0;z-index:100;}
+    .header-left{display:flex;align-items:center;gap:.75rem;}
+    .header-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;}
+    .header-icon i{font-size:1.2rem;color:#0f1117;}
+    .header h1{font-size:1.4rem;font-weight:700;color:var(--primary3);}
+    .back-btn{background:rgba(20,184,166,.12);color:var(--primary3);border:1px solid rgba(20,184,166,.3);padding:.55rem 1.1rem;border-radius:var(--radius2);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;}
+    .back-btn:hover{background:rgba(20,184,166,.22);transform:translateY(-1px);color:var(--primary3);text-decoration:none;}
+
+    /* ── Layout ── */
+    .container{max-width:860px;margin:0 auto;padding:2rem 1.5rem;}
+
+    /* ── Upload card ── */
+    .upload-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);border-top:3px solid var(--primary);box-shadow:var(--shadow);overflow:hidden;animation:fadeInUp .5s ease both;}
+    .upload-card-header{padding:1.75rem 2rem 0;}
+    .upload-card-title{font-size:1.3rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;}
+    .upload-card-title i{color:var(--primary);}
+    .upload-card-sub{color:var(--text3);font-size:.88rem;margin-bottom:1.75rem;}
+    .upload-card-body{padding:0 2rem 2rem;}
+
+    /* ── Form elements ── */
+    .form-group{margin-bottom:1.4rem;}
+    .form-label{display:flex;align-items:center;gap:.45rem;margin-bottom:.6rem;font-weight:600;color:var(--text2);font-size:.88rem;text-transform:uppercase;letter-spacing:.04em;}
+    .form-label i{color:var(--primary);font-size:.85rem;}
+    select{width:100%;padding:.9rem 1rem;border:1.5px solid var(--border2);border-radius:var(--radius2);font-size:.95rem;font-family:inherit;background:var(--bg3);color:var(--text);transition:all .2s;cursor:pointer;}
+    select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(20,184,166,.18);}
+    select option{background:var(--bg3);color:var(--text);}
+
+    /* ── Mode toggle ── */
+    .mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+    .mode-btn{padding:.85rem 1rem;border:1.5px solid var(--border2);background:var(--bg3);border-radius:var(--radius2);cursor:pointer;font-weight:600;font-size:.9rem;color:var(--text2);transition:all .25s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+    .mode-btn:hover{border-color:var(--primary);color:var(--primary3);}
+    .mode-btn.active{background:linear-gradient(135deg,rgba(20,184,166,.2),rgba(139,92,246,.15));border-color:var(--primary);color:var(--primary3);box-shadow:0 0 0 1px rgba(20,184,166,.2);}
+    .mode-btn.active i{color:var(--primary);}
+
+    /* ── File drop zone ── */
+    .file-drop{border:2px dashed var(--border2);border-radius:var(--radius2);padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all .3s;position:relative;background:var(--bg3);}
+    .file-drop:hover,.file-drop.dragover{border-color:var(--primary);background:rgba(20,184,166,.06);}
+    .file-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .file-drop-icon{font-size:2.5rem;color:var(--border2);margin-bottom:.75rem;display:block;transition:color .3s;}
+    .file-drop:hover .file-drop-icon,.file-drop.dragover .file-drop-icon{color:var(--primary);}
+    .file-drop p{color:var(--text2);font-size:.9rem;margin-bottom:.35rem;}
+    .file-drop small{color:var(--text3);font-size:.8rem;}
+    .file-name{margin-top:.75rem;color:var(--primary3);font-weight:600;font-size:.9rem;display:flex;align-items:center;justify-content:center;gap:.4rem;}
+    .file-name i{color:var(--primary);}
+
+    /* ── Submit button ── */
+    .btn-solve{width:100%;padding:1rem;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#0f1117;border:none;border-radius:var(--radius2);font-size:1rem;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:.6rem;box-shadow:0 4px 16px rgba(20,184,166,.3);margin-top:.5rem;}
+    .btn-solve:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(20,184,166,.45);}
+    .btn-solve:disabled{background:var(--bg3);color:var(--text3);cursor:not-allowed;transform:none;box-shadow:none;}
+
+    /* ── Loading ── */
+    .loading{display:none;text-align:center;padding:4rem 2rem;}
+    .loading.active{display:block;}
+    .loading-ring{width:64px;height:64px;border:4px solid var(--border2);border-top:4px solid var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.5rem;}
+    .loading-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.4rem;}
+    .loading-sub{color:var(--text2);font-size:.88rem;}
+    .loading-dots{display:inline-flex;gap:.3rem;margin-top:1rem;}
+    .loading-dots span{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse .9s ease-in-out infinite;}
+    .loading-dots span:nth-child(2){animation-delay:.2s;}
+    .loading-dots span:nth-child(3){animation-delay:.4s;}
+    @keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+    /* ── Results ── */
+    .results{display:none;}
+    .results.active{display:block;animation:fadeInUp .4s ease both;}
+
+    .results-topbar{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem 1.75rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;box-shadow:var(--shadow);}
+    .results-title{font-size:1.2rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:.6rem;}
+    .results-title i{color:var(--green);}
+    .results-actions{display:flex;gap:.75rem;align-items:center;}
+
+    .stats-pills{display:flex;gap:.6rem;flex-wrap:wrap;}
+    .stat-pill{display:inline-flex;align-items:center;gap:.4rem;background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.2);border-radius:50px;padding:.3rem .85rem;font-size:.8rem;font-weight:600;color:var(--primary3);}
+    .stat-pill i{font-size:.75rem;color:var(--primary);}
+
+    .btn-new{background:rgba(139,92,246,.15);color:var(--purple2);border:1px solid rgba(139,92,246,.3);border-radius:var(--radius2);font-weight:600;font-size:.88rem;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;}
+    .btn-new:hover{background:rgba(139,92,246,.25);transform:translateY(-1px);}
+
+    /* ── Solution card ── */
+    .sol-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:1.25rem;transition:all .25s;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+    .sol-card:hover{box-shadow:0 8px 28px rgba(20,184,166,.12);transform:translateY(-2px);}
+
+    .sol-card-header{padding:1rem 1.5rem;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:1rem;}
+    .sol-qnum{font-weight:700;color:var(--primary3);font-size:.95rem;display:flex;align-items:center;gap:.5rem;}
+    .sol-qnum i{color:var(--primary);font-size:.85rem;}
+    .sol-badge{background:rgba(20,184,166,.15);color:var(--primary3);border:1px solid rgba(20,184,166,.25);border-radius:50px;padding:.2rem .75rem;font-size:.75rem;font-weight:600;}
+
+    .sol-question-block{padding:1.25rem 1.5rem;background:rgba(20,184,166,.04);border-bottom:1px solid var(--border);}
+    .sol-question-label{font-size:.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;}
+    .sol-question-text{color:var(--text2);font-size:.92rem;line-height:1.7;}
+
+    .sol-body{padding:1.25rem 1.5rem;}
+
+    .sol-section{margin-bottom:1rem;}
+    .sol-section:last-child{margin-bottom:0;}
+
+    .sol-section-title{display:flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+    .sol-section-title.solution{color:var(--green2);}
+    .sol-section-title.solution i{color:var(--green);}
+    .sol-section-title.explanation{color:var(--accent2);}
+    .sol-section-title.explanation i{color:var(--accent);}
+
+    .sol-text{font-size:.92rem;color:var(--text);line-height:1.8;white-space:pre-wrap;}
+
+    .sol-divider{border:none;border-top:1px solid var(--border);margin:1rem 0;}
+
+    @media(max-width:600px){
+        .container{padding:1rem;}
+        .upload-card-header,.upload-card-body{padding-left:1.25rem;padding-right:1.25rem;}
+        .mode-toggle{grid-template-columns:1fr;}
+        .results-topbar{flex-direction:column;align-items:flex-start;}
+        .sol-card-header{flex-direction:column;align-items:flex-start;}
+    }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <div class="header-icon"><i class="fas fa-robot"></i></div>
+        <h1>AI Solution Explainer</h1>
+    </div>
+    <a href="{{ url_for('student_dashboard') }}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Dashboard
+    </a>
+</div>
+
+<div class="container">
+
+    <!-- ── Upload card ── -->
+    <div class="upload-card" id="uploadSection">
+        <div class="upload-card-header">
+            <div class="upload-card-title">
+                <i class="fas fa-upload"></i> Upload Exam Paper
+            </div>
+            <p class="upload-card-sub">Select your course, choose a mode, then upload your exam PDF to get AI-powered solutions sourced from your textbooks.</p>
+        </div>
+        <div class="upload-card-body">
+
+            <div class="form-group">
+                <label class="form-label"><i class="fas fa-book"></i> Select Course</label>
+                <select id="courseSelect">
+                    <option value="">-- Select course --</option>
+                    {% for c in courses %}
+                    <option value="{{ c[0] }}">{{ c[1] }}{% if c[2] %} — {{ c[2] }}{% endif %}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label"><i class="fas fa-sliders-h"></i> Generation Mode</label>
+                <div class="mode-toggle">
+                    <button type="button" class="mode-btn active" data-mode="solution" id="modeSolution">
+                        <i class="fas fa-check-circle"></i> Solution Only
+                    </button>
+                    <button type="button" class="mode-btn" data-mode="explanation" id="modeExplanation">
+                        <i class="fas fa-lightbulb"></i> Solution + Explanation
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label"><i class="fas fa-file-pdf"></i> Exam PDF</label>
+                <div class="file-drop" id="fileDrop">
+                    <input type="file" id="examFile" accept=".pdf">
+                    <i class="fas fa-cloud-upload-alt file-drop-icon"></i>
+                    <p>Drag &amp; drop your exam PDF here, or click to browse</p>
+                    <small>Supports text-based PDFs only · Max 10 MB</small>
+                    <div class="file-name" id="fileName"></div>
+                </div>
+            </div>
+
+            <button class="btn-solve" id="solveBtn" onclick="solvePaper()">
+                <i class="fas fa-magic"></i> Generate Solutions
+            </button>
+
+        </div>
+    </div>
+
+    <!-- ── Loading ── -->
+    <div class="loading" id="loadingSection">
+        <div class="loading-ring"></div>
+        <div class="loading-title">Analysing exam &amp; generating solutions...</div>
+        <div class="loading-sub">Using textbook knowledge base — this may take 15–30 seconds</div>
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- ── Results ── -->
+    <div class="results" id="resultsSection">
+
+        <div class="results-topbar">
+            <div>
+                <div class="results-title" id="resultsTitle">
+                    <i class="fas fa-check-circle"></i> Solutions
+                </div>
+                <div class="stats-pills" id="statsBar" style="margin-top:.5rem;"></div>
+            </div>
+            <div class="results-actions">
+                <button class="btn-new" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> New Paper
+                </button>
+            </div>
+        </div>
+
+        <div id="solutionsList"></div>
+
+    </div>
+
+</div>
+
+<script>
+    var currentMode = 'solution';
+
+    document.querySelectorAll('.mode-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            currentMode = this.dataset.mode;
+        });
+    });
+
+    var fileDrop  = document.getElementById('fileDrop');
+    var fileInput = document.getElementById('examFile');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files[0]) showFileName(this.files[0].name);
+    });
+
+    fileDrop.addEventListener('dragover',  function(e) { e.preventDefault(); this.classList.add('dragover'); });
+    fileDrop.addEventListener('dragleave', function()  { this.classList.remove('dragover'); });
+    fileDrop.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        if (e.dataTransfer.files[0]) {
+            fileInput.files = e.dataTransfer.files;
+            showFileName(e.dataTransfer.files[0].name);
+        }
+    });
+
+    function showFileName(name) {
+        var el = document.getElementById('fileName');
+        el.innerHTML = '<i class="fas fa-file-pdf"></i> ' + name;
+    }
+
+    function solvePaper() {
+        var courseId = document.getElementById('courseSelect').value;
+        var file     = fileInput.files[0];
+        if (!courseId) { alert('Please select a course.'); return; }
+        if (!file)     { alert('Please upload an exam PDF.'); return; }
+
+        var formData = new FormData();
+        formData.append('course_id', courseId);
+        formData.append('mode', currentMode);
+        formData.append('exam_file', file);
+
+        document.getElementById('uploadSection').style.display = 'none';
+        document.getElementById('loadingSection').classList.add('active');
+        document.getElementById('resultsSection').classList.remove('active');
+
+        fetch('/api/solve-paper', { method: 'POST', body: formData })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                document.getElementById('loadingSection').classList.remove('active');
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    document.getElementById('uploadSection').style.display = 'block';
+                    return;
+                }
+                renderResults(data);
+            })
+            .catch(function() {
+                document.getElementById('loadingSection').classList.remove('active');
+                alert('An error occurred. Please try again.');
+                document.getElementById('uploadSection').style.display = 'block';
+            });
+    }
+
+    function renderResults(data) {
+        var modeLabel = currentMode === 'explanation' ? 'Solutions &amp; Explanations' : 'Solutions';
+        document.getElementById('resultsTitle').innerHTML =
+            '<i class="fas fa-check-circle"></i> ' + modeLabel;
+
+        document.getElementById('statsBar').innerHTML =
+            '<span class="stat-pill"><i class="fas fa-question-circle"></i> ' + data.total + ' questions solved</span>' +
+            '<span class="stat-pill"><i class="fas fa-book"></i> Textbook RAG</span>' +
+            '<span class="stat-pill"><i class="fas fa-robot"></i> AI-powered</span>';
+
+        var html = '';
+        data.questions.forEach(function(q) {
+            var modeTag = currentMode === 'explanation' ? 'Solution + Explanation' : 'Solution Only';
+            html += '<div class="sol-card">';
+
+            // Header
+            html += '<div class="sol-card-header">';
+            html += '<span class="sol-qnum"><i class="fas fa-circle-question"></i> Question ' + q.number + '</span>';
+            html += '<span class="sol-badge">' + modeTag + '</span>';
+            html += '</div>';
+
+            // Question text
+            html += '<div class="sol-question-block">';
+            html += '<div class="sol-question-label">Question</div>';
+            html += '<div class="sol-question-text">' + escHtml(q.question) + '</div>';
+            html += '</div>';
+
+            // Body
+            html += '<div class="sol-body">';
+
+            if (q.solution) {
+                html += '<div class="sol-section">';
+                html += '<div class="sol-section-title solution"><i class="fas fa-check-circle"></i> Solution</div>';
+                html += '<div class="sol-text">' + escHtml(q.solution) + '</div>';
+                html += '</div>';
+            }
+
+            if (q.explanation && q.explanation.trim()) {
+                html += '<hr class="sol-divider">';
+                html += '<div class="sol-section">';
+                html += '<div class="sol-section-title explanation"><i class="fas fa-lightbulb"></i> Explanation</div>';
+                html += '<div class="sol-text">' + escHtml(q.explanation) + '</div>';
+                html += '</div>';
+            }
+
+            html += '</div></div>';
+        });
+
+        document.getElementById('solutionsList').innerHTML = html;
+        document.getElementById('resultsSection').classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function resetForm() {
+        document.getElementById('resultsSection').classList.remove('active');
+        document.getElementById('uploadSection').style.display = 'block';
+        fileInput.value = '';
+        document.getElementById('fileName').innerHTML = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>

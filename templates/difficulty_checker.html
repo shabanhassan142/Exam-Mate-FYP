@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difficulty Analyzer - AI Exam Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+
+    :root {
+        --bg:        #0f1117;
+        --bg2:       #161b27;
+        --bg3:       #1e2535;
+        --card:      #1a2236;
+        --card2:     #212d42;
+        --border:    #2a3550;
+        --border2:   #344060;
+        --primary:   #14b8a6;
+        --primary2:  #0d9488;
+        --primary3:  #99f6e4;
+        --accent:    #f59e0b;
+        --accent2:   #fbbf24;
+        --accent3:   #fef3c7;
+        --purple:    #8b5cf6;
+        --purple2:   #a78bfa;
+        --red:       #ef4444;
+        --red2:      #fca5a5;
+        --green:     #10b981;
+        --green2:    #6ee7b7;
+        --text:      #e2e8f0;
+        --text2:     #94a3b8;
+        --text3:     #64748b;
+        --radius:    14px;
+        --radius2:   10px;
+        --shadow:    0 4px 24px rgba(0,0,0,0.4);
+        --shadow2:   0 2px 8px rgba(0,0,0,0.3);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    @keyframes fadeInUp {
+        from { opacity:0; transform:translateY(20px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes spin {
+        0%   { transform:rotate(0deg); }
+        100% { transform:rotate(360deg); }
+    }
+    @keyframes pulse {
+        0%,100% { opacity:1; }
+        50%      { opacity:.6; }
+    }
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg2); }
+    ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+    body { font-family:'Inter',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
+    .header { background:var(--bg2); padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); box-shadow:0 2px 12px rgba(0,0,0,.4); }
+    .header-left { display:flex; align-items:center; gap:.75rem; }
+    .header-icon { width:44px; height:44px; background:linear-gradient(135deg,var(--purple),var(--primary)); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; box-shadow:0 6px 20px rgba(139,92,246,.3); }
+    .header h1 { font-size:1.4rem; font-weight:700; color:var(--purple2); margin:0; }
+    .header small { color:var(--text3); font-size:.8rem; display:block; }
+    .back-btn { background:rgba(139,92,246,.12); color:var(--purple2); border:1px solid rgba(139,92,246,.3); padding:.55rem 1.1rem; border-radius:var(--radius2); font-weight:600; font-size:.9rem; cursor:pointer; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:.4rem; }
+    .back-btn:hover { background:rgba(139,92,246,.22); transform:translateY(-1px); color:var(--purple2); text-decoration:none; }
+    .container { max-width:1100px; margin:2rem auto 4rem; padding:0 1.5rem; }
+    .glass-card { background:var(--card); border-radius:var(--radius); padding:2rem; border:1px solid var(--border); box-shadow:var(--shadow2); margin-bottom:1.5rem; }
+    .section-title { display:flex; align-items:center; gap:.75rem; margin-bottom:1.25rem; color:var(--text); }
+    .section-title i { color:var(--purple); }
+    label { font-weight:600; color:var(--text2); font-size:.9rem; margin-bottom:.5rem; display:inline-block; }
+    select, textarea, input[type="file"] { width:100%; border-radius:var(--radius2); border:1.5px solid var(--border2); padding:.85rem 1rem; font-size:.95rem; background:var(--bg3); color:var(--text); font-family:inherit; transition:all .2s; }
+    select:focus, textarea:focus, input[type="file"]:focus { outline:none; border-color:var(--purple); box-shadow:0 0 0 3px rgba(139,92,246,.18); }
+    select option { background:var(--bg3); color:var(--text); }
+    textarea { min-height:120px; resize:vertical; }
+    .btn { border:none; border-radius:var(--radius2); padding:.9rem 1.6rem; font-size:.95rem; font-weight:700; cursor:pointer; transition:all .2s; }
+    .btn-primary { background:linear-gradient(135deg,var(--purple),var(--primary)); color:#0f1117; box-shadow:0 6px 20px rgba(139,92,246,.3); }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(139,92,246,.4); }
+    .btn-secondary { background:var(--bg3); color:var(--text2); border:1px solid var(--border2); }
+    .btn-secondary:hover { border-color:var(--primary); color:var(--primary3); }
+    .grid-2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; }
+    .info-banner { background:rgba(20,184,166,.1); border:1px solid rgba(20,184,166,.25); border-radius:var(--radius2); padding:1rem 1.25rem; color:var(--primary3); margin-bottom:1.5rem; display:flex; gap:.75rem; align-items:center; }
+    .info-banner i { font-size:1.3rem; color:var(--primary); }
+    .status-pill { display:inline-flex; align-items:center; gap:.4rem; padding:.3rem .75rem; border-radius:999px; font-size:.82rem; font-weight:600; }
+    .status-success { background:rgba(16,185,129,.15); color:var(--green2); }
+    .status-warning { background:rgba(245,158,11,.15); color:var(--accent2); }
+    .summary-table { width:100%; border-collapse:collapse; }
+    .summary-table th, .summary-table td { padding:.75rem; text-align:center; border-bottom:1px solid var(--border); }
+    .summary-table th { font-weight:600; color:var(--text2); background:var(--bg3); }
+    .summary-table td { color:var(--primary3); font-weight:500; }
+    .result-summary { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem; }
+    .result-chip { flex:1; min-width:140px; padding:1rem; border-radius:var(--radius2); text-align:center; font-weight:700; }
+    .chip-easy   { background:rgba(16,185,129,.15); color:var(--green2); border:1px solid rgba(16,185,129,.3); }
+    .chip-medium { background:rgba(245,158,11,.15); color:var(--accent2); border:1px solid rgba(245,158,11,.3); }
+    .chip-hard   { background:rgba(239,68,68,.15);  color:var(--red2);   border:1px solid rgba(239,68,68,.3); }
+    .question-card { border:1px solid var(--border); border-radius:var(--radius2); padding:1rem; margin-bottom:1rem; background:var(--card2); }
+    .question-card h4 { margin:0 0 .5rem; color:var(--text); }
+    .question-card p  { margin:0 0 .75rem; color:var(--text2); line-height:1.6; }
+    .label-pill { display:inline-flex; gap:.35rem; align-items:center; padding:.28rem .7rem; border-radius:999px; font-weight:600; font-size:.83rem; }
+    .label-easy   { background:rgba(16,185,129,.15); color:var(--green2); }
+    .label-medium { background:rgba(245,158,11,.15); color:var(--accent2); }
+    .label-hard   { background:rgba(239,68,68,.15);  color:var(--red2); }
+    .recent-labels { list-style:none; padding:0; margin:0; }
+    .recent-labels li { padding:.9rem 0; border-bottom:1px dashed var(--border); }
+    .recent-labels li:last-child { border-bottom:none; }
+    .muted { color:var(--text3); font-size:.88rem; }
+    .hidden { display:none; }
+    @media(max-width:640px) { .header{flex-direction:column;gap:1rem;text-align:center;} .header-left{flex-direction:column;} }
+
+    </style>
+</head>
+<body data-min-samples="{{ min_training_samples }}" data-sklearn="{{ 1 if sklearn_available else 0 }}">
+    <div class="header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <div>
+                <h1>AI Difficulty Analyzer</h1>
+                <small>Predict question difficulty using labeled past papers</small>
+            </div>
+        </div>
+        <a href="{{ url_for('teacher_dashboard') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="info-banner">
+            <i class="fas fa-lightbulb"></i>
+            <div>
+                <strong>Training Data Reminder:</strong>
+                Add at least {{ min_training_samples }} labeled questions per course (mixed easy/medium/hard) for the AI model.
+                {% if not sklearn_available %}
+                    Currently running in <strong>heuristic mode</strong> because scikit-learn is not installed.
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="glass-card">
+                <div class="section-title">
+                    <i class="fas fa-pen-to-square"></i>
+                    <h3>Label Past Paper Questions</h3>
+                </div>
+                
+                <!-- Auto-fetch questions section -->
+                <div style="background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <i class="fas fa-sparkles" style="color: #2563eb;"></i>
+                        <strong style="color: #1e40af;">Auto-Fetch Questions from Past Papers</strong>
+                    </div>
+                    <div class="grid-2" style="gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <div>
+                            <label for="fetchCourse" style="font-size: 0.85rem;">Course</label>
+                            <select id="fetchCourse" style="padding: 0.6rem;">
+                                <option value="">Select course</option>
+                                {% for course in courses %}
+                                    <option value="{{ course[0] }}">{{ course[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="fetchExam" style="font-size: 0.85rem;">Exam Type</label>
+                            <select id="fetchExam" style="padding: 0.6rem;">
+                                <option value="">Select exam type</option>
+                                {% for exam in exam_types %}
+                                    <option value="{{ exam[0] }}">{{ exam[1]|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="fetchQuestionsBtn" style="width: 100%;">
+                        <i class="fas fa-download"></i>
+                        Fetch Questions from Uploaded Papers
+                    </button>
+                    <div id="fetchFeedback" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                </div>
+                
+                <!-- Questions list (populated after fetch) -->
+                <div id="questionsListContainer" style="display: none; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <strong style="color: #1e1b4b;">
+                            <i class="fas fa-list"></i> 
+                            Fetched Questions (<span id="questionCount">0</span>)
+                        </strong>
+                        <button type="button" class="btn btn-secondary" id="clearQuestionsBtn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                    <div id="questionsList" style="max-height: 300px; overflow-y: auto; border: 2px solid #e0e7ff; border-radius: 10px; padding: 0.75rem;">
+                        <!-- Questions will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Manual labeling form -->
+                <form id="labelForm">
+                    <div class="form-group">
+                        <label for="labelCourse">Course</label>
+                        <select id="labelCourse" name="course_id" required>
+                            <option value="">Select course</option>
+                            {% for course in courses %}
+                                <option value="{{ course[0] }}">{{ course[1] }}{% if course[2] %} - {{ course[2] }}{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="labelExam">Exam Type</label>
+                        <select id="labelExam" name="exam_type_id" required>
+                            <option value="">Select exam type</option>
+                            {% for exam in exam_types %}
+                                <option value="{{ exam[0] }}">{{ exam[1]|title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="labelDifficulty">Difficulty</label>
+                        <select id="labelDifficulty" name="difficulty_label" required>
+                            <option value="">Select label</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="labelQuestion">Question Text</label>
+                        <textarea id="labelQuestion" name="question_text" placeholder="Click 'Fetch Questions' above or paste question text here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="labelSubmitBtn">
+                        <i class="fas fa-plus-circle"></i>
+                        Add Training Sample
+                    </button>
+                    <p class="muted" style="margin-top:0.75rem;">Total labeled questions: {{ total_labels }}</p>
+                </form>
+                <div id="labelFeedback" class="muted" style="margin-top:0.75rem;"></div>
+            </div>
+
+            <div class="glass-card">
+                <div class="section-title">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Course Difficulty Snapshot</h3>
+                </div>
+                <div class="form-group">
+                    <label for="summaryCourse">Course</label>
+                    <select id="summaryCourse">
+                        <option value="">View course summary</option>
+                        {% for course in courses %}
+                            <option value="{{ course[0] }}">{{ course[1] }}{% if course[2] %} - {{ course[2] }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Exam Type</th>
+                            <th>Easy</th>
+                            <th>Medium</th>
+                            <th>Hard</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryBody">
+                        <tr>
+                            <td colspan="5" class="muted">Select a course to view labeled data distribution.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title">
+                <i class="fas fa-magic"></i>
+                <h3>Analyze New Paper</h3>
+            </div>
+            <form id="difficultyForm">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="analysisCourse">Course</label>
+                        <select id="analysisCourse" name="course_id" required>
+                            <option value="">Select course</option>
+                            {% for course in courses %}
+                                <option value="{{ course[0] }}">{{ course[1] }}{% if course[2] %} - {{ course[2] }}{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label>Upload Paper (PDF)</label>
+                        <input type="file" name="paper_file" accept="application/pdf" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="analyzeBtn" style="margin-top:1rem;">
+                    <i class="fas fa-brain"></i>
+                    Run Difficulty Analysis
+                </button>
+                <div id="analysisStatus" class="muted" style="margin-top:0.75rem;"></div>
+            </form>
+        </div>
+
+        <div id="resultsPanel" class="glass-card hidden">
+            <div class="section-title">
+                <i class="fas fa-list-check"></i>
+                <h3>Prediction Results</h3>
+            </div>
+            <div id="modelBadge" class="status-pill status-warning" style="margin-bottom:1rem;">
+                <i class="fas fa-robot"></i>
+                <span>Awaiting analysis...</span>
+            </div>
+            <div class="result-summary" id="summaryChips"></div>
+            <div id="distributionPanel" style="margin-top:1rem;"></div>
+            <div id="questionResults" style="margin-top:1.5rem;"></div>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title">
+                <i class="fas fa-clock-rotate-left"></i>
+                <h3>Recent Labeled Questions</h3>
+            </div>
+            {% if recent_labels %}
+                <ul class="recent-labels" id="recentLabelsList">
+                    {% for entry in recent_labels %}
+                        <li>
+                            <strong>{{ entry.course_code }} • {{ entry.exam_type|title }}</strong>
+                            <span class="label-pill label-{{ entry.difficulty_label|lower }}">{{ entry.difficulty_label }}</span>
+                            <p class="muted" style="margin:0.4rem 0;">{{ entry.question_text[:180] }}{% if entry.question_text|length > 180 %}...{% endif %}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted">No labeled questions yet. Start by adding a few samples.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script id="trainingSummaryData" type="application/json">{{ training_summary_json|safe }}</script>
+    <script>
+        const summaryDataEl = document.getElementById('trainingSummaryData');
+        const trainingSummary = summaryDataEl ? JSON.parse(summaryDataEl.textContent || '{}') : {};
+        const minSamples = Number(document.body.dataset.minSamples || 0);
+        const sklearnAvailable = document.body.dataset.sklearn === '1';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const summaryCourseSelect = document.getElementById('summaryCourse');
+            const summaryBody = document.getElementById('summaryBody');
+            const analysisCourse = document.getElementById('analysisCourse');
+            const labelForm = document.getElementById('labelForm');
+            const labelFeedback = document.getElementById('labelFeedback');
+            const labelSubmitBtn = document.getElementById('labelSubmitBtn');
+            const difficultyForm = document.getElementById('difficultyForm');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const analysisStatus = document.getElementById('analysisStatus');
+            const resultsPanel = document.getElementById('resultsPanel');
+            const summaryChips = document.getElementById('summaryChips');
+            const questionResults = document.getElementById('questionResults');
+            const modelBadge = document.getElementById('modelBadge');
+            const distributionPanel = document.getElementById('distributionPanel');
+
+            function renderSummary(courseId) {
+                summaryBody.innerHTML = '';
+                if (!courseId || !trainingSummary[courseId]) {
+                    summaryBody.innerHTML = '<tr><td colspan="5" class="muted">No labeled data for the selected course yet.</td></tr>';
+                    return;
+                }
+                const courseData = trainingSummary[courseId];
+                const examTypes = courseData.exam_types;
+                const names = Object.keys(examTypes);
+                if (names.length === 0) {
+                    summaryBody.innerHTML = '<tr><td colspan="5" class="muted">No labeled data for the selected course yet.</td></tr>';
+                    return;
+                }
+                names.forEach(name => {
+                    const counts = examTypes[name];
+                    const total = counts.easy + counts.medium + counts.hard;
+                    summaryBody.innerHTML += `
+                        <tr>
+                            <td>${name.toUpperCase()}</td>
+                            <td>${counts.easy}</td>
+                            <td>${counts.medium}</td>
+                            <td>${counts.hard}</td>
+                            <td><strong>${total}</strong></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            if (summaryCourseSelect) {
+                summaryCourseSelect.addEventListener('change', (e) => renderSummary(e.target.value));
+            }
+            if (analysisCourse) {
+                analysisCourse.addEventListener('change', (e) => renderSummary(e.target.value));
+            }
+
+            // Auto-fetch questions functionality
+            const fetchQuestionsBtn = document.getElementById('fetchQuestionsBtn');
+            const fetchCourse = document.getElementById('fetchCourse');
+            const fetchExam = document.getElementById('fetchExam');
+            const fetchFeedback = document.getElementById('fetchFeedback');
+            const questionsListContainer = document.getElementById('questionsListContainer');
+            const questionsList = document.getElementById('questionsList');
+            const questionCount = document.getElementById('questionCount');
+            const clearQuestionsBtn = document.getElementById('clearQuestionsBtn');
+            const labelQuestion = document.getElementById('labelQuestion');
+            const labelCourse = document.getElementById('labelCourse');
+            const labelExam = document.getElementById('labelExam');
+
+            let fetchedQuestions = [];
+
+            if (fetchQuestionsBtn) {
+                fetchQuestionsBtn.addEventListener('click', async () => {
+                    const courseId = fetchCourse.value;
+                    const examTypeId = fetchExam.value;
+
+                    if (!courseId || !examTypeId) {
+                        fetchFeedback.style.color = '#b91c1c';
+                        fetchFeedback.textContent = 'Please select both course and exam type';
+                        return;
+                    }
+
+                    fetchFeedback.textContent = '';
+                    fetchQuestionsBtn.disabled = true;
+                    fetchQuestionsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+
+                    try {
+                        const response = await fetch('/api/fetch-questions-from-papers', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                course_id: courseId,
+                                exam_type_id: examTypeId
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Failed to fetch questions');
+                        }
+
+                        if (!data.success || data.questions.length === 0) {
+                            fetchFeedback.style.color = '#b45309';
+                            fetchFeedback.textContent = data.message || 'No questions found in uploaded papers';
+                            return;
+                        }
+
+                        fetchedQuestions = data.questions;
+                        displayFetchedQuestions(fetchedQuestions);
+
+                        // Auto-fill course and exam type in labeling form
+                        labelCourse.value = courseId;
+                        labelExam.value = examTypeId;
+
+                        fetchFeedback.style.color = '#047857';
+                        fetchFeedback.textContent = `✓ Found ${data.questions.length} questions from ${data.total_papers} papers`;
+
+                    } catch (error) {
+                        fetchFeedback.style.color = '#b91c1c';
+                        fetchFeedback.textContent = error.message;
+                    } finally {
+                        fetchQuestionsBtn.disabled = false;
+                        fetchQuestionsBtn.innerHTML = '<i class="fas fa-download"></i> Fetch Questions from Uploaded Papers';
+                    }
+                });
+            }
+
+            function displayFetchedQuestions(questions) {
+                questionsList.innerHTML = '';
+                questionCount.textContent = questions.length;
+
+                questions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.style.cssText = 'padding: 0.75rem; margin-bottom: 0.5rem; background: white; border-radius: 8px; border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.2s;';
+                    questionDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 0.85rem; color: #2563eb; margin-bottom: 0.25rem;">
+                                    <i class="fas fa-file-pdf"></i> ${q.paper_title}
+                                </div>
+                                <div style="color: #1e293b; line-height: 1.4;">
+                                    ${q.question_text.substring(0, 200)}${q.question_text.length > 200 ? '...' : ''}
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; white-space: nowrap;" onclick="selectQuestion(${index})">
+                                <i class="fas fa-arrow-right"></i> Use
+                            </button>
+                        </div>
+                    `;
+                    questionDiv.addEventListener('mouseenter', () => {
+                        questionDiv.style.borderColor = '#2563eb';
+                        questionDiv.style.background = '#eff6ff';
+                    });
+                    questionDiv.addEventListener('mouseleave', () => {
+                        questionDiv.style.borderColor = '#e2e8f0';
+                        questionDiv.style.background = 'white';
+                    });
+                    questionsList.appendChild(questionDiv);
+                });
+
+                questionsListContainer.style.display = 'block';
+            }
+
+            // Make selectQuestion global so it can be called from onclick
+            window.selectQuestion = function(index) {
+                const question = fetchedQuestions[index];
+                labelQuestion.value = question.question_text;
+                labelQuestion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                labelQuestion.focus();
+            };
+
+            if (clearQuestionsBtn) {
+                clearQuestionsBtn.addEventListener('click', () => {
+                    fetchedQuestions = [];
+                    questionsListContainer.style.display = 'none';
+                    questionsList.innerHTML = '';
+                    fetchFeedback.textContent = '';
+                });
+            }
+
+            if (labelForm) {
+                labelForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    labelFeedback.textContent = '';
+                    labelSubmitBtn.disabled = true;
+                    labelSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                    const formData = new FormData(labelForm);
+                    try {
+                        const response = await fetch('{{ url_for("add_difficulty_label") }}', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Unable to add label');
+                        }
+                        labelFeedback.style.color = '#047857';
+                        labelFeedback.textContent = data.message;
+                        labelForm.reset();
+                        setTimeout(() => { labelFeedback.textContent = ''; }, 4000);
+                    } catch (error) {
+                        labelFeedback.style.color = '#b91c1c';
+                        labelFeedback.textContent = error.message;
+                    } finally {
+                        labelSubmitBtn.disabled = false;
+                        labelSubmitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Training Sample';
+                    }
+                });
+            }
+
+            if (difficultyForm) {
+                difficultyForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    analysisStatus.textContent = '';
+                    analyzeBtn.disabled = true;
+                    analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+                    const formData = new FormData(difficultyForm);
+                    try {
+                        const response = await fetch('{{ url_for("analyze_difficulty") }}', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Analysis failed');
+                        }
+                        renderAnalysisResults(data);
+                        analysisStatus.style.color = '#047857';
+                        analysisStatus.textContent = 'Analysis completed successfully.';
+                    } catch (error) {
+                        analysisStatus.style.color = '#b91c1c';
+                        analysisStatus.textContent = error.message;
+                    } finally {
+                        analyzeBtn.disabled = false;
+                        analyzeBtn.innerHTML = '<i class="fas fa-brain"></i> Run Difficulty Analysis';
+                    }
+                });
+            }
+
+            function renderAnalysisResults(data) {
+                resultsPanel.classList.remove('hidden');
+                modelBadge.innerHTML = '';
+            if (data.model_used === 'ml') {
+                modelBadge.className = 'status-pill status-success';
+                modelBadge.innerHTML = '<i class="fas fa-robot"></i><span>Trained ML model (TF-IDF + Logistic Regression)</span>';
+            } else if (data.model_used === 'zero_shot') {
+                modelBadge.className = 'status-pill status-success';
+                modelBadge.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i><span>Zero-shot AI (BART MNLI) + heuristics</span>';
+            } else {
+                modelBadge.className = 'status-pill status-warning';
+                modelBadge.innerHTML = '<i class="fas fa-triangle-exclamation"></i><span>Heuristic analysis (length + Bloom cues)</span>';
+            }
+
+                summaryChips.innerHTML = '';
+                ['easy', 'medium', 'hard'].forEach(level => {
+                    const count = data.summary[level] || 0;
+                    summaryChips.innerHTML += `
+                        <div class="result-chip chip-${level}">
+                            <strong>${level.toUpperCase()}</strong>
+                            <div style="font-size:1.4rem;">${count}</div>
+                        </div>
+                    `;
+                });
+
+                distributionPanel.innerHTML = '';
+                if (data.training_distribution && data.training_distribution.length) {
+                    const cards = data.training_distribution.map(entry => {
+                        const { easy, medium, hard } = entry.counts;
+                        return `
+                            <div class="question-card">
+                                <h4>${entry.exam_type.toUpperCase()}</h4>
+                                <p class="muted">Training samples: ${entry.total}</p>
+                                <div class="result-summary">
+                                    <span class="label-pill label-easy">Easy ${easy}</span>
+                                    <span class="label-pill label-medium">Medium ${medium}</span>
+                                    <span class="label-pill label-hard">Hard ${hard}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    distributionPanel.innerHTML = `<h4 style="margin:1rem 0 0.5rem;">Existing Exam Difficulty Mix</h4>${cards}`;
+                }
+
+                questionResults.innerHTML = '';
+                data.question_results.forEach(item => {
+                    const levelClass = item.label.toLowerCase();
+                    const metrics = item.metrics || {};
+                    questionResults.innerHTML += `
+                        <div class="question-card">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <h4>Question ${item.index}</h4>
+                                <span class="label-pill label-${levelClass}">
+                                    ${item.label} • ${(item.confidence * 100).toFixed(0)}%
+                                </span>
+                            </div>
+                            <p>${item.question}</p>
+                            <div class="muted">
+                                Words: ${metrics.word_count || 0} • Avg word length: ${metrics.avg_word_length || 0} • Dominant level: ${metrics.dominant_cognitive_level || 'N/A'}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
