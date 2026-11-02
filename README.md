@@ -338,6 +338,7 @@ Used by: Chatbot (line 5408), Solution Explainer (line 4893).
 ---
 
 ## Configuration (`config.py`)
+The populated `config.py` is intentionally excluded from Git. Use `config.example.py` as a reference and provide credentials through environment variables. Never commit API keys, email passwords, or a Flask secret key.
 
 | Key | Purpose |
 |---|---|
@@ -352,6 +353,10 @@ Used by: Chatbot (line 5408), Solution Explainer (line 4893).
 ---
 
 ## Setup
+The public repository does not include local databases, uploaded PDFs, textbook files, vector indexes, or model weights. Add those locally before using features that depend on them.
+
+For local configuration, copy `config.example.py` to `config.py` and set the required environment variables in your shell or deployment environment.
+
 
 ```bash
 # Install dependencies
